@@ -1,20 +1,35 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context (shown to AI when creating artifacts)
+context: |
+  openspec-ui — a local-first Astro 6 + React 19 app (pnpm, Node >= 22.12) that
+  renders OpenSpec projects in a nice UI.
+
+  What it does: you configure a projects-root folder; the app discovers projects
+  containing an openspec/ folder, parses their proposals/designs/specs/tasks, and
+  renders them. From the UI you toggle the tasks.md checkboxes and add comments,
+  which are written back into the OpenSpec files so the AI can re-read and apply them.
+
+  Architecture: hexagonal + DDD + vertical slicing adapted for Astro.
+  - src/pages = thin routing + island mounting; src/modules/<slice> = the hexagon;
+    src/shared = Maybe, DomainError, Factory, UI primitives.
+  - Layers: Infrastructure -> Application -> Domain (deps point inward).
+  - No database: the filesystem IS the repository (infrastructure/fs adapters
+    implement domain repository ports via node:fs). Astro runs output: 'server'
+    with @astrojs/node so it can read/write disk.
+  - Astro Actions/endpoints = driving adapters (deserialize -> one use case ->
+    serialize). React islands reach the server only through Actions.
+  - Comments are embedded inline under a check using <!-- ui:comment --> ...
+    <!-- /ui:comment --> markers; parser/serializer round-trips must be lossless.
+
+  Engineering: TDD inside-out (domain outward), no-mocks (InMemory repos; real
+  temp dirs for fs adapters). Code/comments/docs in English. Never commit to main.
+  See CLAUDE.md and .claude/skills/guidelines/ (architecture-hexagonal,
+  astro-vertical-slicing, frontend-patterns, design-principles, testing-standards).
 
 # Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+# rules:
+#   proposal:
+#     - Always include a "Non-goals" section
+#   tasks:
+#     - Break tasks into chunks of max 2 hours
