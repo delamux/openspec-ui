@@ -1,0 +1,180 @@
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.progressCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.progressHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.progressLabel {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.progressCount {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.progressCount strong {
+  color: var(--foreground);
+}
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--muted);
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.taskGroupTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin: 0 0 8px 2px;
+}
+.taskList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.task {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  transition: background 0.12s, border-color 0.12s;
+}
+.task:hover {
+  background: var(--muted-2);
+  border-color: var(--border);
+}
+.check {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1.5px solid var(--input);
+  background: var(--background);
+  display: grid;
+  place-items: center;
+  color: var(--primary-foreground);
+  transition: 0.15s;
+}
+.check:hover {
+  border-color: var(--primary);
+}
+.taskDone .check {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.taskId {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  width: 26px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.taskText {
+  flex: 1;
+  font-size: 14px;
+}
+.taskDone .taskText {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  text-decoration-color: var(--border);
+}
+.taskDel {
+  opacity: 0;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: 0.12s;
+}
+.task:hover .taskDel {
+  opacity: 1;
+}
+.taskDel:hover {
+  background: color-mix(in oklch, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+.taskAdd {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.taskAdd input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--input);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  transition: 0.15s;
+}
+.taskAdd input::placeholder {
+  color: var(--muted-foreground);
+}
+.taskAdd input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+.btnAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition: 0.15s;
+}
+.btnAdd:hover {
+  filter: brightness(1.05);
+}
+.btnAdd:active {
+  transform: translateY(1px);
+}

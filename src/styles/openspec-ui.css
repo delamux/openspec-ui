@@ -1,0 +1,156 @@
+/* ===== shadcn-style design tokens (ported from the design prototype) ===== */
+:root {
+  --radius: 10px;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.006 285);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.97 0.001 286);
+  --muted-2: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.55 0.012 286);
+  --border: oklch(0.92 0.004 286);
+  --input: oklch(0.92 0.004 286);
+  --primary: oklch(0.66 0.19 41); /* shadcn orange */
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-soft: oklch(0.66 0.19 41 / 0.12);
+  --ring: oklch(0.66 0.19 41 / 0.35);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.05), 0 1px 3px oklch(0 0 0 / 0.05);
+  --code-bg: oklch(0.97 0.001 286);
+  --danger: oklch(0.6 0.2 25);
+}
+
+.dark {
+  --background: oklch(0.17 0.004 285);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.215 0.005 285);
+  --muted: oklch(0.25 0.006 286);
+  --muted-2: oklch(0.225 0.005 286);
+  --muted-foreground: oklch(0.7 0.012 286);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.12);
+  --primary: oklch(0.7 0.19 44);
+  --primary-foreground: oklch(0.18 0.02 40);
+  --primary-soft: oklch(0.7 0.19 44 / 0.16);
+  --ring: oklch(0.7 0.19 44 / 0.4);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 3px oklch(0 0 0 / 0.25);
+  --code-bg: oklch(0.2 0.004 286);
+  --danger: oklch(0.7 0.18 25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+astro-island {
+  display: block;
+  height: 100%;
+}
+
+/* ===== Prose (rendered markdown) ===== */
+.prose {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+.prose h2 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 30px 0 12px;
+}
+.prose h2:first-child {
+  margin-top: 0;
+}
+.prose h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+}
+.prose p {
+  margin: 0 0 14px;
+  color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground));
+}
+.prose strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+.prose li {
+  margin: 5px 0;
+  color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground));
+}
+.prose li::marker {
+  color: var(--muted-foreground);
+}
+.prose code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+.prose pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 0 0 18px;
+}
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+.prose blockquote {
+  margin: 0 0 18px;
+  padding: 2px 16px;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft);
+  border-radius: 0 8px 8px 0;
+}
+.prose blockquote p {
+  margin: 10px 0;
+  color: var(--foreground);
+  font-size: 14px;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px;
+  font-size: 13.5px;
+}
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+}
+.prose th {
+  background: var(--muted);
+  font-weight: 600;
+}
+.prose td {
+  color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground));
+}
