@@ -27,7 +27,7 @@
 
 - [x] 5.1 Editing-state hook (single grouped `useState`): which task is being edited, the edit draft, the add draft, pending/error flags; actions call the Astro Actions
 - [x] 5.2 Enable the `Checkbox` (onChange → toggle) in `TasksView`
-- [ ] 5.4 Hover delete button → lightweight confirm → delete
+- [x] 5.4 Hover delete button → lightweight confirm → delete
 - [x] 5.5 Bottom "Add a task…" `Input` → add
 - [x] 5.7 Keep read-only comments rendering; no destructuring of props/hooks; CSS Modules for any new styles
 
