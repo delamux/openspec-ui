@@ -3,28 +3,42 @@ import type { ProjectsRootProvider } from '../../modules/project-discovery/domai
 import type { ProjectRepository } from '../../modules/project-discovery/domain/repositories/ProjectRepository';
 import { EnvProjectsRootProvider } from '../../modules/project-discovery/infrastructure/env/EnvProjectsRootProvider';
 import { FileSystemProjectRepository } from '../../modules/project-discovery/infrastructure/fs/FileSystemProjectRepository';
+import { ListChanges } from '../../modules/change-viewer/application/ListChanges';
+import { LoadChange } from '../../modules/change-viewer/application/LoadChange';
+import type { ChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
+import { FileSystemChangeRepository } from '../../modules/change-viewer/infrastructure/fs/FileSystemChangeRepository';
 
-export interface ProjectDiscoveryDependencies {
+export interface AppDependencies {
   provider: ProjectsRootProvider;
   repository: ProjectRepository;
+  changeRepository: ChangeRepository;
 }
 
 export class Factory {
-  private constructor(private readonly dependencies: ProjectDiscoveryDependencies) {}
+  private constructor(private readonly dependencies: AppDependencies) {}
 
   static fromEnv(): Factory {
     return new Factory({
       provider: new EnvProjectsRootProvider(readProjectsPath()),
       repository: new FileSystemProjectRepository(),
+      changeRepository: new FileSystemChangeRepository(),
     });
   }
 
-  static withDependencies(dependencies: ProjectDiscoveryDependencies): Factory {
+  static withDependencies(dependencies: AppDependencies): Factory {
     return new Factory(dependencies);
   }
 
   discoverProjects(): DiscoverProjects {
     return new DiscoverProjects(this.dependencies.provider, this.dependencies.repository);
+  }
+
+  listChanges(): ListChanges {
+    return new ListChanges(this.dependencies.changeRepository);
+  }
+
+  loadChange(): LoadChange {
+    return new LoadChange(this.dependencies.changeRepository);
   }
 }
 

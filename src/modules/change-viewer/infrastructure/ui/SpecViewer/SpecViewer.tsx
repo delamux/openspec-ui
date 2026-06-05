@@ -1,67 +1,56 @@
-import { useEffect } from 'react';
-import { useSpecViewer, type InitialTheme } from './SpecViewer.hook';
+import { useState } from 'react';
+import { Tabs, type TabItem } from '../../../../../shared/infrastructure/ui/components';
 import { renderMarkdown } from './markdown';
-import { TabNav } from './TabNav';
 import { TasksView } from './TasksView';
-import { IconMoon, IconSun } from './icons';
-import type { Spec } from './types';
+import { IconProposal, IconDesign, IconTasks } from './icons';
+import type { ChangeViewDto } from '../../../application/dtos';
 import styles from './SpecViewer.module.css';
 
+type TabId = 'proposal' | 'design' | 'tasks';
+
+const TABS: TabItem[] = [
+  { id: 'proposal', label: 'Proposal', icon: <IconProposal size={16} /> },
+  { id: 'design', label: 'Design', icon: <IconDesign size={16} /> },
+  { id: 'tasks', label: 'Tasks', icon: <IconTasks size={16} /> },
+];
+
 interface SpecViewerProps {
-  spec: Spec;
-  initialTheme?: InitialTheme;
+  view: ChangeViewDto;
 }
 
 function Markdown(props: { source: string }) {
   return <div className="prose" dangerouslySetInnerHTML={{ __html: renderMarkdown(props.source) }} />;
 }
 
-export function SpecViewer(props: SpecViewerProps) {
-  const view = useSpecViewer(props.spec, props.initialTheme ?? 'system');
+function Empty(props: { label: string }) {
+  return <p className={styles.empty}>{props.label}</p>;
+}
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', view.theme === 'dark');
-  }, [view.theme]);
+export function SpecViewer(props: SpecViewerProps) {
+  const [active, setActive] = useState<TabId>('proposal');
 
   return (
-    <div className={styles.app}>
-      <header className={styles.appbar}>
-        <div className={styles.brand}>
-          <div className={styles.logo}>◆</div>
-          <div className={styles.brandText}>
-            <div className={styles.brandName}>{props.spec.meta.change}</div>
-            <div className={styles.brandSub}>{props.spec.meta.title}</div>
-          </div>
-        </div>
-        <div className={styles.appbarRight}>
-          <span className={styles.statusBadge}>{props.spec.meta.status}</span>
-          <button className={styles.iconBtn} aria-label="Toggle theme" onClick={() => view.toggleTheme()}>
-            {view.theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
-          </button>
-        </div>
-      </header>
-
+    <div className={styles.viewer}>
       <div className={styles.tabbarWrap}>
-        <TabNav active={view.activeTab} onSelect={view.selectTab} />
+        <Tabs items={TABS} active={active} onSelect={(id) => setActive(id as TabId)} />
       </div>
-
-      <main className={styles.mainScroll}>
-        <div className={styles.content} role="tabpanel">
-          {view.activeTab === 'proposal' ? <Markdown source={props.spec.proposal} /> : null}
-          {view.activeTab === 'design' ? <Markdown source={props.spec.design} /> : null}
-          {view.activeTab === 'tasks' ? (
-            <TasksView
-              groups={view.groups}
-              draft={view.draft}
-              progress={view.progress}
-              onToggle={view.toggleTaskAt}
-              onRemove={view.removeTaskAt}
-              onChangeDraft={view.changeDraft}
-              onAdd={view.addDraftTask}
-            />
-          ) : null}
-        </div>
-      </main>
+      <div className={styles.content} role="tabpanel">
+        {active === 'proposal'
+          ? props.view.proposal !== null
+            ? <Markdown source={props.view.proposal} />
+            : <Empty label="This change has no proposal." />
+          : null}
+        {active === 'design'
+          ? props.view.design !== null
+            ? <Markdown source={props.view.design} />
+            : <Empty label="This change has no design document." />
+          : null}
+        {active === 'tasks'
+          ? props.view.tasks !== null
+            ? <TasksView groups={props.view.tasks} progress={props.view.progress} />
+            : <Empty label="This change has no task list." />
+          : null}
+      </div>
     </div>
   );
 }

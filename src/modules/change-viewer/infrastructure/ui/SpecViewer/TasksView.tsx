@@ -1,18 +1,16 @@
-import type { Progress, TaskGroup } from './specTasks';
-import { IconCheck, IconPlus, IconTrash } from './icons';
+import { Avatar, Badge, Checkbox } from '../../../../../shared/infrastructure/ui/components';
+import { IconComment } from './icons';
+import { initialsOf, relativeTime } from './commentFormat';
+import type { TaskCommentDto, TaskDto, TaskGroupDto } from '../../../application/dtos';
 import styles from './TasksView.module.css';
 
 interface TasksViewProps {
-  groups: TaskGroup[];
-  draft: string;
-  progress: Progress;
-  onToggle: (groupIndex: number, itemIndex: number) => void;
-  onRemove: (groupIndex: number, itemIndex: number) => void;
-  onChangeDraft: (value: string) => void;
-  onAdd: () => void;
+  groups: TaskGroupDto[];
+  progress: { done: number; total: number; pct: number };
 }
 
 export function TasksView(props: TasksViewProps) {
+  const now = Date.now();
   return (
     <div className={styles.tasks}>
       <div className={styles.progressCard}>
@@ -27,49 +25,50 @@ export function TasksView(props: TasksViewProps) {
         </div>
       </div>
 
-      {props.groups.map((group, groupIndex) => (
+      {props.groups.map((group) => (
         <div key={group.title}>
-          <div className={styles.taskGroupTitle}>{group.title}</div>
+          <div className={styles.groupTitle}>{group.title}</div>
           <ul className={styles.taskList}>
-            {group.items.map((task, itemIndex) => (
-              <li className={task.done ? `${styles.task} ${styles.taskDone}` : styles.task} key={task.id}>
-                <button
-                  className={styles.check}
-                  role="checkbox"
-                  aria-checked={task.done}
-                  onClick={() => props.onToggle(groupIndex, itemIndex)}
-                >
-                  {task.done ? <IconCheck size={12} /> : null}
-                </button>
-                <span className={styles.taskId}>{task.id}</span>
-                <span className={styles.taskText}>{task.text}</span>
-                <button
-                  className={styles.taskDel}
-                  aria-label="Delete task"
-                  onClick={() => props.onRemove(groupIndex, itemIndex)}
-                >
-                  <IconTrash size={14} />
-                </button>
-              </li>
-            ))}
+            {group.items.map((task) => renderTask(task, now))}
           </ul>
         </div>
       ))}
+    </div>
+  );
+}
 
-      <div className={styles.taskAdd}>
-        <input
-          value={props.draft}
-          placeholder="Add a task…"
-          onChange={(event) => props.onChangeDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              props.onAdd();
-            }
-          }}
-        />
-        <button className={styles.btnAdd} onClick={() => props.onAdd()}>
-          <IconPlus size={14} /> Add
-        </button>
+function renderTask(task: TaskDto, now: number) {
+  return (
+    <li className={task.done ? `${styles.task} ${styles.taskDone}` : styles.task} key={task.id || task.text}>
+      <div className={styles.taskRow}>
+        <Checkbox checked={task.done} disabled ariaLabel={task.text} />
+        <span className={styles.taskId}>{task.id}</span>
+        <span className={styles.taskText}>{task.text}</span>
+        {task.comments.length > 0 ? (
+          <span className={styles.commentBadge}>
+            <Badge tone="muted">
+              <IconComment size={13} /> {task.comments.length}
+            </Badge>
+          </span>
+        ) : null}
+      </div>
+      {task.comments.length > 0 ? (
+        <div className={styles.thread}>{task.comments.map((comment, index) => renderComment(comment, index, now))}</div>
+      ) : null}
+    </li>
+  );
+}
+
+function renderComment(comment: TaskCommentDto, index: number, now: number) {
+  return (
+    <div className={styles.comment} key={index}>
+      <Avatar initials={initialsOf(comment.author)} />
+      <div className={styles.commentBody}>
+        <div className={styles.commentMeta}>
+          <span className={styles.commentAuthor}>{comment.author}</span>
+          <span className={styles.commentWhen}>{relativeTime(comment.at, now)}</span>
+        </div>
+        <div className={styles.commentText}>{comment.text}</div>
       </div>
     </div>
   );
