@@ -75,8 +75,34 @@
 .taskRow {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 9px;
   padding: 9px 10px;
+}
+.dragHandle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  cursor: grab;
+  opacity: 0;
+  touch-action: none;
+  transition: opacity 0.12s, background 0.12s;
+}
+.dragHandle:active {
+  cursor: grabbing;
+}
+.task:hover .dragHandle {
+  opacity: 0.6;
+}
+.dragHandle:hover {
+  opacity: 1;
+  background: var(--muted);
 }
 .taskId {
   font-family: 'JetBrains Mono', monospace;

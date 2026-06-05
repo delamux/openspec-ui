@@ -74,6 +74,25 @@ function applyStructuralEdit(list: TaskList, edit: TaskEdit): TaskList {
     return groups;
   }
 
+  if (edit.kind === 'reorder') {
+    const group = groups.find((candidate) => candidate.title === edit.groupTitle);
+    if (group === undefined) {
+      throw DomainError.createNotFound(`Task group not found: ${edit.groupTitle}`);
+    }
+    const ids = group.items.map((item) => item.id);
+    const samePermutation =
+      edit.orderedIds.length === ids.length &&
+      edit.orderedIds.every((id) => ids.includes(id)) &&
+      ids.every((id) => edit.orderedIds.includes(id));
+    if (!samePermutation) {
+      throw DomainError.createConflict('Task order changed since it was loaded; reload the change');
+    }
+    const byId = new Map(group.items.map((item) => [item.id, item]));
+    group.items = edit.orderedIds.map((id) => byId.get(id)!);
+    renumberGroup(group);
+    return groups;
+  }
+
   const target = findTask(groups, edit.id, edit.expectedText);
 
   if (edit.kind === 'toggle') {
@@ -89,7 +108,16 @@ function applyStructuralEdit(list: TaskList, edit: TaskEdit): TaskList {
     return groups;
   }
   target.group.items.splice(target.index, 1);
+  renumberGroup(target.group);
   return groups;
+}
+
+function renumberGroup(group: TaskGroup): void {
+  const groupNumber = /^(\d+)/.exec(group.title);
+  if (groupNumber === null) {
+    return;
+  }
+  group.items = group.items.map((item, index) => ({ ...item, id: `${groupNumber[1]}.${index + 1}` }));
 }
 
 function findTask(

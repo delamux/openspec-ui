@@ -28,19 +28,38 @@ The system SHALL let the user change a task's text, replacing only the text that
 - **WHEN** the user clears a task's text and tries to save
 - **THEN** the edit is rejected and `tasks.md` is unchanged
 
-### Requirement: Delete a task
+### Requirement: Delete a task and renumber its section
 
-The system SHALL delete a task, removing its line and any `<!-- ui:comment … -->` block attached beneath it, leaving the rest of the file intact.
+The system SHALL delete a task — removing its line and any `<!-- ui:comment … -->` block attached beneath it — and then renumber the remaining tasks in that section so their ids stay sequential (`N.1`, `N.2`, …). Other sections and all task text/comments are untouched.
+
+#### Scenario: Deleting a middle task shifts the ones below it up
+
+- **WHEN** a section has tasks `6.2`, `6.3`, `6.4` and the user deletes `6.3`
+- **THEN** the old `6.4` becomes `6.3` (and any task below it shifts up by one), so the section reads `6.2`, `6.3`
 
 #### Scenario: Delete a task with comments
 
 - **WHEN** the user deletes a task that has an inline comment block
-- **THEN** the task line and its comment block are removed from `tasks.md` and surrounding tasks are untouched
+- **THEN** the task line and its comment block are removed and the comments of the renumbered tasks move with them
 
 #### Scenario: Delete is confirmed
 
 - **WHEN** the user triggers delete
 - **THEN** the system requires a confirmation before writing the file
+
+### Requirement: Reorder tasks within a section
+
+The system SHALL let the user reorder tasks within a section by drag-and-drop, persisting the new order to `tasks.md` and renumbering that section's ids to match the new order (`N.1`, `N.2`, …). Each task keeps its done state, text, and comments; reordering is confined to the task's own section.
+
+#### Scenario: Drag a task to a new position
+
+- **WHEN** the user drags a task above another within the same section
+- **THEN** the section's tasks are rewritten in the new visual order and renumbered `N.1`, `N.2`, … accordingly, preserving each task's done state, text, and comments
+
+#### Scenario: Reorder against a stale snapshot
+
+- **WHEN** a reorder is requested but the section's tasks on disk no longer match the set the UI had loaded
+- **THEN** the reorder is rejected and the change is reloaded with the latest
 
 ### Requirement: Add a task to a chosen group
 

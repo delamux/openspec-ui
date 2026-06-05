@@ -1,5 +1,21 @@
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Avatar, Badge, Button, Checkbox, IconButton, Input } from '../../../../../shared/infrastructure/ui/components';
-import { IconComment, IconTrash, IconPlus } from './icons';
+import { IconComment, IconTrash, IconPlus, IconGrip } from './icons';
 import { initialsOf, relativeTime } from './commentFormat';
 import { useTaskEditor, type TaskEditorView } from './TasksView.hook';
 import type { TaskCommentDto, TaskDto, TaskGroupDto } from '../../../application/dtos';
@@ -36,7 +52,7 @@ export function TasksView(props: TasksViewProps) {
       {props.groups.map((group) => (
         <div key={group.title}>
           <div className={styles.groupTitle}>{group.title}</div>
-          <ul className={styles.taskList}>{group.items.map((task) => renderTask(task, editor, now))}</ul>
+          <SortableSection group={group} editor={editor} now={now} />
           {renderGroupAdd(group.title, editor)}
         </div>
       ))}
@@ -44,46 +60,60 @@ export function TasksView(props: TasksViewProps) {
   );
 }
 
-function renderGroupAdd(groupTitle: string, editor: TaskEditorView) {
-  if (editor.addingGroup === groupTitle) {
-    return (
-      <div className={styles.addRow}>
-        <Input
-          value={editor.addDraft}
-          placeholder="New task…"
-          ariaLabel={`Add a task to ${groupTitle}`}
-          onChange={(value) => editor.changeAddDraft(value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              editor.submitAdd(groupTitle, editor.addDraft);
-            }
-            if (event.key === 'Escape') {
-              editor.cancelAdd();
-            }
-          }}
-        />
-        <Button onClick={() => editor.submitAdd(groupTitle, editor.addDraft)} disabled={editor.pending}>
-          Add
-        </Button>
-        <Button variant="ghost" onClick={() => editor.cancelAdd()}>
-          Cancel
-        </Button>
-      </div>
-    );
+function SortableSection(props: { group: TaskGroupDto; editor: TaskEditorView; now: number }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const ids = props.group.items.map((task) => task.id);
+
+  function onDragEnd(event: { active: { id: string | number }; over: { id: string | number } | null }) {
+    if (event.over === null || event.active.id === event.over.id) {
+      return;
+    }
+    const oldIndex = ids.indexOf(String(event.active.id));
+    const newIndex = ids.indexOf(String(event.over.id));
+    if (oldIndex === -1 || newIndex === -1) {
+      return;
+    }
+    props.editor.reorder(props.group.title, arrayMove(ids, oldIndex, newIndex));
   }
+
   return (
-    <button type="button" className={styles.addTrigger} onClick={() => editor.startAdd(groupTitle)}>
-      <IconPlus size={14} /> Add task
-    </button>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        <ul className={styles.taskList}>
+          {props.group.items.map((task) => (
+            <SortableTask key={task.id || task.text} task={task} editor={props.editor} now={props.now} />
+          ))}
+        </ul>
+      </SortableContext>
+    </DndContext>
   );
 }
 
-function renderTask(task: TaskDto, editor: TaskEditorView, now: number) {
+function SortableTask(props: { task: TaskDto; editor: TaskEditorView; now: number }) {
+  const sortable = useSortable({ id: props.task.id });
+  const task = props.task;
+  const editor = props.editor;
   const isEditing = editor.editingId === task.id && task.id !== '';
   const isConfirming = editor.confirmingDeleteId === task.id && task.id !== '';
+  const style = {
+    transform: CSS.Transform.toString(sortable.transform),
+    transition: sortable.transition,
+    opacity: sortable.isDragging ? 0.6 : 1,
+  };
+
   return (
-    <li className={task.done ? `${styles.task} ${styles.taskDone}` : styles.task} key={task.id || task.text}>
+    <li
+      ref={sortable.setNodeRef}
+      style={style}
+      className={task.done ? `${styles.task} ${styles.taskDone}` : styles.task}
+    >
       <div className={styles.taskRow}>
+        <button className={styles.dragHandle} aria-label="Drag to reorder" {...sortable.attributes} {...sortable.listeners}>
+          <IconGrip size={14} />
+        </button>
         <Checkbox checked={task.done} ariaLabel={task.text} onChange={() => editor.toggle(task)} />
         <span className={styles.taskId}>{task.id}</span>
         {isEditing ? (
@@ -137,9 +167,43 @@ function renderTask(task: TaskDto, editor: TaskEditorView, now: number) {
         </div>
       </div>
       {task.comments.length > 0 ? (
-        <div className={styles.thread}>{task.comments.map((comment, index) => renderComment(comment, index, now))}</div>
+        <div className={styles.thread}>{task.comments.map((comment, index) => renderComment(comment, index, props.now))}</div>
       ) : null}
     </li>
+  );
+}
+
+function renderGroupAdd(groupTitle: string, editor: TaskEditorView) {
+  if (editor.addingGroup === groupTitle) {
+    return (
+      <div className={styles.addRow}>
+        <Input
+          value={editor.addDraft}
+          placeholder="New task…"
+          ariaLabel={`Add a task to ${groupTitle}`}
+          onChange={(value) => editor.changeAddDraft(value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              editor.submitAdd(groupTitle, editor.addDraft);
+            }
+            if (event.key === 'Escape') {
+              editor.cancelAdd();
+            }
+          }}
+        />
+        <Button onClick={() => editor.submitAdd(groupTitle, editor.addDraft)} disabled={editor.pending}>
+          Add
+        </Button>
+        <Button variant="ghost" onClick={() => editor.cancelAdd()}>
+          Cancel
+        </Button>
+      </div>
+    );
+  }
+  return (
+    <button type="button" className={styles.addTrigger} onClick={() => editor.startAdd(groupTitle)}>
+      <IconPlus size={14} /> Add task
+    </button>
   );
 }
 

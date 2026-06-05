@@ -32,6 +32,7 @@ export interface TaskEditorView {
   cancelAdd: () => void;
   changeAddDraft: (value: string) => void;
   submitAdd: (groupTitle: string, text: string) => Promise<void>;
+  reorder: (groupTitle: string, orderedIds: string[]) => Promise<void>;
 }
 
 const initialState: EditorState = {
@@ -128,6 +129,12 @@ export function useTaskEditor(projectPath: string, changeName: string, onChanged
     await settle(result, () => setState((prev) => ({ ...prev, addingGroup: null, addDraft: '' })));
   }
 
+  async function reorder(groupTitle: string, orderedIds: string[]): Promise<void> {
+    setState((prev) => ({ ...prev, pending: true }));
+    const result = await actions.reorderTasks({ projectPath, changeName, groupTitle, orderedIds });
+    await settle(result, () => undefined);
+  }
+
   return {
     editingId: state.editingId,
     editDraft: state.editDraft,
@@ -148,5 +155,6 @@ export function useTaskEditor(projectPath: string, changeName: string, onChanged
     cancelAdd,
     changeAddDraft,
     submitAdd,
+    reorder,
   };
 }

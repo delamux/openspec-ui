@@ -27,6 +27,12 @@ The parser intentionally discards headings prose, blank lines, and non-task cont
 - **delete(id, expectedText)** — remove the task line and any immediately-following `<!-- ui:comment … -->`…`<!-- /ui:comment -->` block(s) that belong to it; stop at the next task/heading.
 - **add(groupTitle, text)** — locate the group by its `## N. Title`, append `- [ ] <id> <text>` after that group's last task (before the next heading); derive `<id>` as `<groupNumber>.<maxSubIndex+1>` so it never collides after a delete. Each section has its own `+` control in the UI.
 
+### 2c. Renumber-on-delete and reorder (added)
+- **delete** now calls `renumberSection` after removing the task: each remaining task in that section is reassigned `N.1`, `N.2`, … in file order. Only lines whose id actually changes are rewritten (unchanged tasks stay byte-identical).
+- A new **reorder** op `{ kind: 'reorder'; groupTitle; orderedIds: string[] }` rewrites a section's task **blocks** (task line + its comment block) into the given order of current ids, then renumbers. `orderedIds` must be a permutation of the section's current ids — otherwise it's rejected as a stale conflict.
+- Reordering is **within a section only** (the section number never changes), matching the renumber-by-section model.
+- UI uses **@dnd-kit** (`/core` + `/sortable`) — accessible, touch- and keyboard-friendly sortable lists, one `SortableContext` per section, with a drag handle so dragging doesn't conflict with the checkbox / click-to-edit. On drag end the UI sends the new order of ids to the `reorderTasks` action and reloads.
+
 ### 2b. Locate by id + expected text (optimistic concurrency)
 Operations carry the task `id` **and** the text the UI last loaded. The serializer matches the line by id and verifies its current text equals `expectedText`; on mismatch it throws a "stale" `DomainError` and the op is rejected. **Why:** reads are fresh and this is a local single-user tool, but a drifted line (file edited in an editor meanwhile) must not be clobbered — fail safe and prompt a reload. Tasks with an empty id (rare/malformed) are not editable in this slice.
 

@@ -75,9 +75,9 @@ describe('applyTaskEdit — delete', () => {
   it('removes a task and its trailing comment block', () => {
     const out = applyTaskEdit(FIXTURE, { kind: 'delete', id: '2.1', expectedText: 'First thing' });
 
-    expect(out).not.toContain('2.1 First thing');
+    expect(out).not.toContain('First thing');
     expect(out).not.toContain('needs care');
-    expect(out).toContain('- [x] 2.2 Second thing');
+    expect(out).toContain('- [x] 2.1 Second thing'); // renumbered from 2.2
     expect(out.split('\n').slice(0, 6).join('\n')).toBe(FIXTURE.split('\n').slice(0, 6).join('\n'));
   });
 
@@ -154,6 +154,53 @@ describe('applyTaskEdit — locator guard', () => {
 
   it('throws not-found for an unknown id', () => {
     expect(() => applyTaskEdit(FIXTURE, { kind: 'toggle', id: '9.9', expectedText: 'x' })).toThrow(DomainError);
+  });
+});
+
+describe('applyTaskEdit — delete renumbers the section', () => {
+  it('shifts ids below the deleted task up by one', () => {
+    const md = '## 6. Verify\n- [ ] 6.1 a\n- [x] 6.2 b\n- [ ] 6.3 c\n- [x] 6.4 d\n';
+
+    const out = applyTaskEdit(md, { kind: 'delete', id: '6.3', expectedText: 'c' });
+
+    expect(out).toBe('## 6. Verify\n- [ ] 6.1 a\n- [x] 6.2 b\n- [x] 6.3 d\n');
+  });
+
+  it('only renumbers the affected section', () => {
+    const md = '## 1. A\n- [ ] 1.1 x\n- [ ] 1.2 y\n\n## 2. B\n- [ ] 2.1 z\n';
+
+    const out = applyTaskEdit(md, { kind: 'delete', id: '1.1', expectedText: 'x' });
+
+    expect(out).toBe('## 1. A\n- [ ] 1.1 y\n\n## 2. B\n- [ ] 2.1 z\n');
+  });
+});
+
+describe('applyTaskEdit — reorder within a section', () => {
+  it('reorders tasks and renumbers by position', () => {
+    const out = applyTaskEdit(FIXTURE, { kind: 'reorder', groupTitle: '1. Setup', orderedIds: ['1.2', '1.1'] });
+    const lines = out.split('\n');
+
+    expect(lines[2]).toBe('- [ ] 1.1 Wire config');
+    expect(lines[3]).toBe('- [x] 1.2 Add `vitest`');
+  });
+
+  it('moves a task’s comment block with it', () => {
+    const out = applyTaskEdit(FIXTURE, { kind: 'reorder', groupTitle: '2. Build', orderedIds: ['2.2', '2.1'] });
+
+    expect(out).toContain('- [x] 2.1 Second thing');
+    expect(out).toContain('- [ ] 2.2 First thing');
+    const lines = out.split('\n');
+    expect(lines[lines.indexOf('- [ ] 2.2 First thing') + 1]).toContain('ui:comment');
+  });
+
+  it('rejects an order that is not a permutation of the section', () => {
+    let caught: unknown;
+    try {
+      applyTaskEdit(FIXTURE, { kind: 'reorder', groupTitle: '1. Setup', orderedIds: ['1.1', '9.9'] });
+    } catch (error) {
+      caught = error;
+    }
+    expect((caught as DomainError).isConflict()).toBe(true);
   });
 });
 

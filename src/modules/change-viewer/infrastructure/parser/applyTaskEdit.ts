@@ -76,6 +76,11 @@ export function applyTaskEdit(raw: string, edit: TaskEdit): string {
     return lines.join(eol);
   }
 
+  if (edit.kind === 'reorder') {
+    reorderSection(lines, edit.groupTitle, edit.orderedIds);
+    return lines.join(eol);
+  }
+
   const index = locate(lines, edit.id, edit.expectedText);
 
   if (edit.kind === 'toggle') {
@@ -95,10 +100,111 @@ export function applyTaskEdit(raw: string, edit: TaskEdit): string {
     return lines.join(eol);
   }
 
-  // delete: remove the task line and its attached comment block(s)
+  // delete: remove the task line and its attached comment block(s), then renumber the section
+  const headingIndex = sectionHeadingIndexFor(lines, index);
   const blockEnd = endOfCommentBlock(lines, index + 1);
   lines.splice(index, blockEnd - index);
+  if (headingIndex >= 0) {
+    renumberSection(lines, headingIndex);
+  }
   return lines.join(eol);
+}
+
+function sectionHeadingIndexFor(lines: string[], index: number): number {
+  for (let i = index; i >= 0; i--) {
+    if (HEADING.test(lines[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function sectionEnd(lines: string[], headingIndex: number): number {
+  for (let i = headingIndex + 1; i < lines.length; i++) {
+    if (HEADING.test(lines[i])) {
+      return i;
+    }
+  }
+  return lines.length;
+}
+
+// Reassign the section's task ids to N.1, N.2, … in file order, rewriting only changed lines.
+function renumberSection(lines: string[], headingIndex: number): void {
+  const groupNumber = /^##\s+(\d+)/.exec(lines[headingIndex]);
+  if (groupNumber === null) {
+    return;
+  }
+  const end = sectionEnd(lines, headingIndex);
+  let position = 0;
+  for (let i = headingIndex + 1; i < end; i++) {
+    if (!TASK.test(lines[i])) {
+      continue;
+    }
+    position++;
+    const newId = `${groupNumber[1]}.${position}`;
+    const withId = /^(- \[[ xX]\]\s+)(\d+(?:\.\d+)*)(\s+.*)$/.exec(lines[i]);
+    if (withId !== null) {
+      if (withId[2] !== newId) {
+        lines[i] = `${withId[1]}${newId}${withId[3]}`;
+      }
+      continue;
+    }
+    const withoutId = /^(- \[[ xX]\]\s+)(.*)$/.exec(lines[i]);
+    if (withoutId !== null) {
+      lines[i] = `${withoutId[1]}${newId} ${withoutId[2]}`;
+    }
+  }
+}
+
+function reorderSection(lines: string[], groupTitle: string, orderedIds: string[]): void {
+  let headingIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const heading = HEADING_TITLE.exec(lines[i]);
+    if (heading !== null && heading[1] === groupTitle) {
+      headingIndex = i;
+      break;
+    }
+  }
+  if (headingIndex === -1) {
+    throw DomainError.createNotFound(`Task group not found: ${groupTitle}`);
+  }
+
+  const end = sectionEnd(lines, headingIndex);
+  const blocks: { id: string; lines: string[] }[] = [];
+  let firstTask = -1;
+  let regionEnd = -1;
+  let i = headingIndex + 1;
+  while (i < end) {
+    if (!TASK.test(lines[i])) {
+      i += 1;
+      continue;
+    }
+    if (firstTask === -1) {
+      firstTask = i;
+    }
+    const parsed = parseTaskLine(lines[i]);
+    const blockEnd = Math.min(endOfCommentBlock(lines, i + 1), end);
+    blocks.push({ id: parsed ? parsed.id : '', lines: lines.slice(i, blockEnd) });
+    regionEnd = blockEnd;
+    i = blockEnd;
+  }
+  if (firstTask === -1) {
+    return;
+  }
+
+  const currentIds = blocks.map((block) => block.id);
+  const samePermutation =
+    orderedIds.length === currentIds.length &&
+    orderedIds.every((id) => currentIds.includes(id)) &&
+    currentIds.every((id) => orderedIds.includes(id));
+  if (!samePermutation) {
+    throw DomainError.createConflict('Task order changed on disk since it was loaded; reload the change');
+  }
+
+  const byId = new Map(blocks.map((block) => [block.id, block]));
+  const reordered = orderedIds.flatMap((id) => byId.get(id)!.lines);
+  lines.splice(firstTask, regionEnd - firstTask, ...reordered);
+  renumberSection(lines, headingIndex);
 }
 
 const HEADING_TITLE = /^##\s+(.*\S)\s*$/;

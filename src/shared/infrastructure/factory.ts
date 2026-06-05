@@ -9,6 +9,7 @@ import { ToggleTask } from '../../modules/change-viewer/application/ToggleTask';
 import { EditTaskText } from '../../modules/change-viewer/application/EditTaskText';
 import { DeleteTask } from '../../modules/change-viewer/application/DeleteTask';
 import { AddTask } from '../../modules/change-viewer/application/AddTask';
+import { ReorderTasks } from '../../modules/change-viewer/application/ReorderTasks';
 import type { ChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
 import { FileSystemChangeRepository } from '../../modules/change-viewer/infrastructure/fs/FileSystemChangeRepository';
 
@@ -59,6 +60,10 @@ export class Factory {
 
   addTask(): AddTask {
     return new AddTask(this.dependencies.changeRepository);
+  }
+
+  reorderTasks(): ReorderTasks {
+    return new ReorderTasks(this.dependencies.changeRepository);
   }
 }
 

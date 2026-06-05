@@ -36,3 +36,12 @@
 - [x] 6.1 `pnpm test` — all unit + integration tests green (serializer round-trip suite is the centerpiece)
 - [x] 6.2 `pnpm astro check` passes
 - [x] 6.3 Manual (headless, incl. dark mode) on a scratch copy: toggle a task and confirm only that line changed in `tasks.md`; edit text; delete a task with a comment; add a task; confirm the file round-trips and the UI reflects disk
+
+## 7. Renumber & reorder (sortable)
+
+- [x] 7.1 Serializer `renumberSection`: reassign a section's task ids to `N.1..N.n` in order, rewriting only changed lines (unchanged stay byte-identical); tests
+- [x] 7.2 `delete` op renumbers its section after removing the task; round-trip tests (delete 6.3 → 6.4 becomes 6.3)
+- [x] 7.3 `reorder` op `{groupTitle, orderedIds}`: reorder the section's task blocks (line + comment block) per orderedIds, then renumber; reject non-permutation as conflict; tests
+- [x] 7.4 Repository/use case/action `reorderTasks`; InMemory structural reorder+renumber; handler maps conflict→stale
+- [x] 7.5 Install @dnd-kit (/core, /sortable, /utilities); make each section a SortableContext with a drag handle; onDragEnd → reorderTasks + reload
+- [x] 7.6 Verify: tests, astro check, E2E on a scratch project (delete renumbers; drag reorders + renumbers on disk)

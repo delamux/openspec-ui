@@ -82,6 +82,15 @@ export function addTaskHandler(
   return runEdit(() => factory.addTask().execute(input.projectPath, input.changeName, input.groupTitle, input.text));
 }
 
+export function reorderTasksHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string; groupTitle: string; orderedIds: string[] },
+): Promise<TaskEditResultDto> {
+  return runEdit(() =>
+    factory.reorderTasks().execute(input.projectPath, input.changeName, input.groupTitle, input.orderedIds),
+  );
+}
+
 function messageFrom(error: unknown): string {
   if (error instanceof DomainError) {
     // not-found / validation messages are safe (no filesystem paths); technical errors are generalized

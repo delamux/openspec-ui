@@ -9,6 +9,7 @@ import {
   editTaskTextHandler,
   deleteTaskHandler,
   addTaskHandler,
+  reorderTasksHandler,
 } from './handlers';
 
 const taskTarget = { projectPath: z.string(), changeName: z.string(), id: z.string(), expectedText: z.string() };
@@ -40,5 +41,14 @@ export const server = {
   addTask: defineAction({
     input: z.object({ projectPath: z.string(), changeName: z.string(), groupTitle: z.string(), text: z.string() }),
     handler: (input) => addTaskHandler(factory, input),
+  }),
+  reorderTasks: defineAction({
+    input: z.object({
+      projectPath: z.string(),
+      changeName: z.string(),
+      groupTitle: z.string(),
+      orderedIds: z.array(z.string()),
+    }),
+    handler: (input) => reorderTasksHandler(factory, input),
   }),
 };

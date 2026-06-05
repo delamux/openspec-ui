@@ -111,6 +111,19 @@ export function IconCheck(props: IconProps) {
   );
 }
 
+export function IconGrip(props: IconProps) {
+  return (
+    <Icon size={props.size}>
+      <circle cx="9" cy="6" r="1" />
+      <circle cx="9" cy="12" r="1" />
+      <circle cx="9" cy="18" r="1" />
+      <circle cx="15" cy="6" r="1" />
+      <circle cx="15" cy="12" r="1" />
+      <circle cx="15" cy="18" r="1" />
+    </Icon>
+  );
+}
+
 export function IconComment(props: IconProps) {
   return (
     <Icon size={props.size}>

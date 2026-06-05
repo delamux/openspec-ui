@@ -3,6 +3,7 @@ import { ToggleTask } from './ToggleTask';
 import { EditTaskText } from './EditTaskText';
 import { DeleteTask } from './DeleteTask';
 import { AddTask } from './AddTask';
+import { ReorderTasks } from './ReorderTasks';
 import { InMemoryChangeRepository } from '../domain/repositories/ChangeRepository';
 import type { ChangeDetail } from '../domain/ChangeDetail';
 import { Maybe } from '../../../shared/domain/Maybe';
@@ -53,6 +54,32 @@ describe('task edit use cases', () => {
 
     expect(await tasksOf(repo)).toHaveLength(2);
     expect((await tasksOf(repo))[1]).toMatchObject({ id: '1.2', text: 'b', done: false });
+  });
+
+  it('DeleteTask renumbers the remaining tasks in the group', async () => {
+    const repo = repoWith([
+      { id: '1.1', text: 'a', done: false },
+      { id: '1.2', text: 'b', done: false },
+      { id: '1.3', text: 'c', done: false },
+    ]);
+
+    await new DeleteTask(repo).execute('/p', 'c', '1.2', 'b');
+
+    const items = await tasksOf(repo);
+    expect(items.map((i) => i.id)).toEqual(['1.1', '1.2']);
+    expect(items.map((i) => i.text)).toEqual(['a', 'c']);
+  });
+
+  it('ReorderTasks reorders and renumbers by position', async () => {
+    const repo = repoWith([
+      { id: '1.1', text: 'a', done: false },
+      { id: '1.2', text: 'b', done: true },
+    ]);
+
+    await new ReorderTasks(repo).execute('/p', 'c', '1. G', ['1.2', '1.1']);
+
+    const items = await tasksOf(repo);
+    expect(items.map((i) => `${i.id}:${i.text}:${i.done}`)).toEqual(['1.1:b:true', '1.2:a:false']);
   });
 
   it('propagates a conflict from a stale edit', async () => {
