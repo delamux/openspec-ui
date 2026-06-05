@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `openspec-ui` is a local-first **Astro 6 + React 19** app (pnpm, Node >= 22.12.0) that gives a nice UI on top of [OpenSpec](https://github.com/Fission-AI/OpenSpec) projects.
 
 **What it does:**
-1. You configure a **projects root** — a folder path on disk.
+1. You configure a **projects root** via the `PROJECTS_PATH` environment variable (a `.env` file) — an absolute folder path on disk.
 2. The app walks that path and **discovers projects** that contain an `openspec/` folder with a `config.yaml`.
 3. You enter a project and the app **parses and renders** its OpenSpec artifacts (proposals, designs, specs, tasks) in a readable UI.
 4. From the UI you can **toggle the task checkboxes** (the `- [ ]` / `- [x]` lines in `tasks.md`) and **add comments** under any check.
@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Because it reads and writes the local filesystem, this app **runs server-side** (Astro in `server` output with a Node adapter), with React islands for the interactive parts.
 
-> ⚠️ Setup not done yet: `astro.config.mjs` currently only registers `react()`. Filesystem access requires `output: 'server'` + `@astrojs/node`. There is also no test runner / lint script configured — Vitest is the intended runner for the TDD workflow below. Add these via a change proposal before relying on them.
+> Setup status: `astro.config.mjs` runs `output: 'server'` with `@astrojs/node` (filesystem access), and **Vitest** is wired as the test runner (`pnpm test`). No lint/format script is configured yet — add one before relying on `pnpm lint`.
 
 ## Commands
 
@@ -131,7 +131,7 @@ Inside a change, follow **TDD (inside-out)** and the XP pair-programming stance:
 
 ### Tasks (subagent reviews)
 - `/task-validate`, `/task-code-review`, `/task-testing-review`, `/task-architecture-review`, `/task-frontend-review`, `/task-ux-review`, `/task-qa`
-  (these reference compile/lint/test scripts that are not configured yet — wire up tooling first.)
+  (`pnpm test` and `pnpm astro check` are configured; lint/format are not yet — wire those up before relying on them.)
 
 ## Design standards (summary)
 
