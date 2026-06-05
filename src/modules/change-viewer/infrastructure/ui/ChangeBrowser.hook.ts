@@ -33,7 +33,10 @@ export interface ChangeBrowserView {
   toggleTheme: () => void;
 }
 
-function resolveTheme(): ThemeMode {
+// The first render must be identical on server and client to avoid a hydration
+// mismatch, so theme starts at a fixed value and the system preference is read
+// only after mount (in init), never in the useState initializer.
+function systemTheme(): ThemeMode {
   if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
@@ -57,7 +60,7 @@ function syncUrl(projectPath: string, changeName: string): void {
 
 export function useChangeBrowser(): ChangeBrowserView {
   const [state, setState] = useState<State>({
-    theme: resolveTheme(),
+    theme: 'light',
     projects: null,
     projectsLoading: false,
     projectPath: '',
@@ -92,7 +95,8 @@ export function useChangeBrowser(): ChangeBrowserView {
     const params = new URLSearchParams(window.location.search);
     const urlProject = params.get('project') ?? '';
     const urlChange = params.get('change') ?? '';
-    setState((prev) => ({ ...prev, projectsLoading: true, projectPath: urlProject }));
+    // Apply the system theme now (post-mount), so it never affects the first render.
+    setState((prev) => ({ ...prev, theme: systemTheme(), projectsLoading: true, projectPath: urlProject }));
     const response = await actions.listProjects();
     const projects: DiscoveryResultDto = response.data ?? { kind: 'discovery-error', message: 'Failed to load projects' };
     setState((prev) => ({ ...prev, projects, projectsLoading: false }));
