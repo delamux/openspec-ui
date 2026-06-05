@@ -1,0 +1,21 @@
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  line-height: 1;
+}
+.you {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: color-mix(in oklch, var(--primary) 25%, transparent);
+}

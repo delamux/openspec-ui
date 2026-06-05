@@ -1,0 +1,23 @@
+.check {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1.5px solid var(--input);
+  background: var(--background);
+  display: grid;
+  place-items: center;
+  color: var(--primary-foreground);
+  transition: 0.15s;
+}
+.check:not(:disabled):hover {
+  border-color: var(--primary);
+}
+.check:disabled {
+  cursor: default;
+}
+.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}

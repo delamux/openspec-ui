@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenSpec IO — Variations</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; height: 100%; font-family: "Inter", system-ui, sans-serif; }
+  .ab-frame { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+const Frame = ({ variant, theme, device }) => (
+  <iframe
+    className="ab-frame"
+    src={`app.html?variant=${variant}&theme=${theme}&device=${device}`}
+    title={`${variant}-${theme}-${device}`}
+  />
+);
+
+function Canvas() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="desktop"
+        title="Desktop"
+        subtitle="Three look variations · shadcn tokens, orange accent, Inter. Each is live — switch tabs, check tasks, toggle theme.">
+        <DCArtboard id="d-a" label="A · Underline tabs (dark)" width={1080} height={720}>
+          <Frame variant="a" theme="dark" device="desktop" />
+        </DCArtboard>
+        <DCArtboard id="d-b" label="B · Sidebar (light)" width={1080} height={720}>
+          <Frame variant="b" theme="light" device="desktop" />
+        </DCArtboard>
+        <DCArtboard id="d-c" label="C · Segmented control (dark)" width={1080} height={720}>
+          <Frame variant="c" theme="dark" device="desktop" />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="mobile"
+        title="Mobile"
+        subtitle="Same components, responsive. Sidebar collapses to top tabs on small screens.">
+        <DCArtboard id="m-a" label="A · Underline (light)" width={390} height={760}>
+          <Frame variant="a" theme="light" device="mobile" />
+        </DCArtboard>
+        <DCArtboard id="m-c" label="C · Segmented (dark)" width={390} height={760}>
+          <Frame variant="c" theme="dark" device="mobile" />
+        </DCArtboard>
+        <DCArtboard id="m-b" label="B · Tasks view (light)" width={390} height={760}>
+          <Frame variant="b" theme="light" device="mobile" />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Canvas />);
+</script>
+</body>
+</html>

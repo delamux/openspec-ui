@@ -1,20 +1,23 @@
 ---
-import { ProjectList } from '../modules/project-discovery/infrastructure/ui/ProjectList';
+import { ChangeBrowser } from '../modules/change-viewer/infrastructure/ui/ChangeBrowser';
+import '../styles/openspec-ui.css';
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
-		<title>OpenSpec UI</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+			rel="stylesheet"
+		/>
+		<title>OpenSpec IO</title>
 	</head>
 	<body>
-		<main>
-			<h1>OpenSpec projects</h1>
-			<ProjectList client:load />
-		</main>
+		<ChangeBrowser client:load />
 	</body>
 </html>

@@ -1,0 +1,50 @@
+.tabnav {
+  display: flex;
+  gap: 2px;
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  padding: 13px 14px;
+  position: relative;
+  transition: color 0.15s, background 0.15s;
+}
+.tab svg {
+  opacity: 0.9;
+}
+.tab:hover {
+  color: var(--foreground);
+}
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.18s ease;
+}
+.tabActive {
+  color: var(--primary);
+}
+.tab.tabActive::after {
+  transform: scaleX(1);
+}
+
+@media (max-width: 768px) {
+  .tab {
+    padding: 12px 11px;
+    font-size: 13.5px;
+  }
+}

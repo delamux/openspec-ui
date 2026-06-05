@@ -1,14 +1,12 @@
-import type { Spec } from './types';
-
-// Sample spec content from the design prototype:
-// change add-passwordless-auth — magic-link email sign-in.
-export const sampleSpec: Spec = {
+// Spec content for the OpenSpec UI prototype.
+// Change: add-passwordless-auth — magic-link email sign-in.
+window.SPEC = {
   meta: {
-    change: 'add-passwordless-auth',
-    title: 'Passwordless email sign-in',
-    status: 'Draft',
-    author: 'j.rivera',
-    updated: 'Jun 4, 2026',
+    change: "add-passwordless-auth",
+    title: "Passwordless email sign-in",
+    status: "Draft",
+    author: "j.rivera",
+    updated: "Jun 4, 2026",
   },
 
   proposal: `## Why
@@ -80,29 +78,34 @@ type MagicToken = {
 
   tasks: [
     {
-      title: 'Token service',
+      title: "Token service",
       items: [
-        { id: '1.1', text: 'Define MagicToken schema and signing helper', done: true },
-        { id: '1.2', text: 'Implement issue() with 15-min TTL', done: true },
-        { id: '1.3', text: 'Implement redeem() with single-use marker', done: false },
-        { id: '1.4', text: 'Add weekly key rotation with kid lookup', done: false },
+        { id: "1.1", text: "Define MagicToken schema and signing helper", done: true },
+        { id: "1.2", text: "Implement issue() with 15-min TTL", done: true },
+        { id: "1.3", text: "Implement redeem() with single-use marker", done: false, comments: [
+          { id: "c1", author: "Priya N.", initials: "PN", when: "2d", text: "Should we burn the jti in Redis or Postgres? Leaning Redis with the TTL matching the token." },
+          { id: "c2", author: "You", initials: "YO", when: "1d", text: "Redis — keeps redemption off the hot DB path. I’ll add it." },
+        ] },
+        { id: "1.4", text: "Add weekly key rotation with kid lookup", done: false },
       ],
     },
     {
-      title: 'Email & flow',
+      title: "Email & flow",
       items: [
-        { id: '2.1', text: 'Build magic-link request form', done: true },
-        { id: '2.2', text: 'Design transactional email template', done: false },
-        { id: '2.3', text: 'Add “check your inbox” interstitial', done: false },
-        { id: '2.4', text: 'Handle expired / reused link screen', done: false },
+        { id: "2.1", text: "Build magic-link request form", done: true },
+        { id: "2.2", text: "Design transactional email template", done: false, comments: [
+          { id: "c3", author: "Marco D.", initials: "MD", when: "5h", text: "Keep the link button above the fold — mobile clients clip long preheaders." },
+        ] },
+        { id: "2.3", text: "Add \u201Ccheck your inbox\u201D interstitial", done: false },
+        { id: "2.4", text: "Handle expired / reused link screen", done: false },
       ],
     },
     {
-      title: 'Rollout',
+      title: "Rollout",
       items: [
-        { id: '3.1', text: 'Feature-flag behind passwordless_login', done: false },
-        { id: '3.2', text: 'Add opt-in toggle to account settings', done: false },
-        { id: '3.3', text: 'Write deliverability + bounce monitoring', done: false },
+        { id: "3.1", text: "Feature-flag behind passwordless_login", done: false },
+        { id: "3.2", text: "Add opt-in toggle to account settings", done: false },
+        { id: "3.3", text: "Write deliverability + bounce monitoring", done: false },
       ],
     },
   ],
