@@ -20,17 +20,15 @@
 
 ## 4. Driving adapter (Astro Actions)
 
-- [x] 4.1 Add Actions `toggleTask` / `editTaskText` / `deleteTask` / `addTask` (input: projectPath, changeName, id, expectedText, payload) delegating to the use cases via the Factory
+- [x] 4.1 Add Actions `toggleTask` / `editTaskText` / `deleteTask` / `addTask` (input: projectPath, changeName, id, expectedText, payload) delegating to the use cases via the Factory, test
 - [x] 4.2 Extend the Factory to expose the four use cases; thin handler tests with injected in-memory deps (incl. the stale path)
 
 ## 5. Interactive Tasks UI
 
 - [x] 5.1 Editing-state hook (single grouped `useState`): which task is being edited, the edit draft, the add draft, pending/error flags; actions call the Astro Actions
 - [x] 5.2 Enable the `Checkbox` (onChange → toggle) in `TasksView`
-- [x] 5.3 Inline text edit: click the task text → `Input` (Enter saves, Esc cancels) → editText
-- [x] 5.4 Hover delete button → lightweight confirm → delete
+- [ ] 5.4 Hover delete button → lightweight confirm → delete
 - [x] 5.5 Bottom "Add a task…" `Input` → add
-- [x] 5.6 After any successful edit, reload the change (re-run `loadChange`); surface `stale` with a "reload" prompt and `error` inline
 - [x] 5.7 Keep read-only comments rendering; no destructuring of props/hooks; CSS Modules for any new styles
 
 ## 6. Verify
