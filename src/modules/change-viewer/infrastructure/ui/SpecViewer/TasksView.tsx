@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -61,11 +62,20 @@ export function TasksView(props: TasksViewProps) {
 }
 
 function SortableSection(props: { group: TaskGroupDto; editor: TaskEditorView; now: number }) {
+  // Local order so a drop reorders instantly (optimistic); re-synced from props after
+  // the server write reloads. Without this, dnd-kit animates the item back to its old
+  // slot before the async reload arrives, which reads as a "snap back".
+  const [items, setItems] = useState<TaskDto[]>(props.group.items);
+  const signature = props.group.items.map((task) => `${task.id}:${task.text}:${task.done}:${task.comments.length}`).join('|');
+  useEffect(() => {
+    setItems(props.group.items);
+  }, [signature]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
-  const ids = props.group.items.map((task) => task.id);
+  const ids = items.map((task) => task.id);
 
   function onDragEnd(event: { active: { id: string | number }; over: { id: string | number } | null }) {
     if (event.over === null || event.active.id === event.over.id) {
@@ -76,14 +86,16 @@ function SortableSection(props: { group: TaskGroupDto; editor: TaskEditorView; n
     if (oldIndex === -1 || newIndex === -1) {
       return;
     }
-    props.editor.reorder(props.group.title, arrayMove(ids, oldIndex, newIndex));
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered);
+    props.editor.reorder(props.group.title, reordered.map((task) => task.id));
   }
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
         <ul className={styles.taskList}>
-          {props.group.items.map((task) => (
+          {items.map((task) => (
             <SortableTask key={task.id || task.text} task={task} editor={props.editor} now={props.now} />
           ))}
         </ul>

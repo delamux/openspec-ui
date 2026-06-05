@@ -131,8 +131,6 @@
 }
 .taskDone .taskText {
   color: var(--muted-foreground);
-  text-decoration: line-through;
-  text-decoration-color: var(--border);
 }
 .taskEdit {
   flex: 1;
