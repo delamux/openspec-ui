@@ -77,9 +77,9 @@ export function deleteTaskHandler(
 
 export function addTaskHandler(
   factory: Factory,
-  input: { projectPath: string; changeName: string; text: string },
+  input: { projectPath: string; changeName: string; groupTitle: string; text: string },
 ): Promise<TaskEditResultDto> {
-  return runEdit(() => factory.addTask().execute(input.projectPath, input.changeName, input.text));
+  return runEdit(() => factory.addTask().execute(input.projectPath, input.changeName, input.groupTitle, input.text));
 }
 
 function messageFrom(error: unknown): string {

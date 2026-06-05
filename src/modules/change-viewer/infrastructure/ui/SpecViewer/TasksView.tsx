@@ -37,26 +37,44 @@ export function TasksView(props: TasksViewProps) {
         <div key={group.title}>
           <div className={styles.groupTitle}>{group.title}</div>
           <ul className={styles.taskList}>{group.items.map((task) => renderTask(task, editor, now))}</ul>
+          {renderGroupAdd(group.title, editor)}
         </div>
       ))}
+    </div>
+  );
+}
 
+function renderGroupAdd(groupTitle: string, editor: TaskEditorView) {
+  if (editor.addingGroup === groupTitle) {
+    return (
       <div className={styles.addRow}>
         <Input
           value={editor.addDraft}
-          placeholder="Add a task…"
-          ariaLabel="Add a task"
+          placeholder="New task…"
+          ariaLabel={`Add a task to ${groupTitle}`}
           onChange={(value) => editor.changeAddDraft(value)}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
-              editor.submitAdd(editor.addDraft);
+              editor.submitAdd(groupTitle, editor.addDraft);
+            }
+            if (event.key === 'Escape') {
+              editor.cancelAdd();
             }
           }}
         />
-        <Button onClick={() => editor.submitAdd(editor.addDraft)} disabled={editor.pending}>
-          <IconPlus size={14} /> Add
+        <Button onClick={() => editor.submitAdd(groupTitle, editor.addDraft)} disabled={editor.pending}>
+          Add
+        </Button>
+        <Button variant="ghost" onClick={() => editor.cancelAdd()}>
+          Cancel
         </Button>
       </div>
-    </div>
+    );
+  }
+  return (
+    <button type="button" className={styles.addTrigger} onClick={() => editor.startAdd(groupTitle)}>
+      <IconPlus size={14} /> Add task
+    </button>
   );
 }
 

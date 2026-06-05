@@ -142,7 +142,29 @@
 .addRow {
   display: flex;
   gap: 8px;
-  margin-top: 2px;
+  margin-top: 6px;
+  padding-left: 6px;
+}
+.addTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0 6px;
+  padding: 6px 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.12s;
+}
+.addTrigger:hover {
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--primary);
 }
 
 .thread {

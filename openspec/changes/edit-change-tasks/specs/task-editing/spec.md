@@ -42,14 +42,19 @@ The system SHALL delete a task, removing its line and any `<!-- ui:comment … -
 - **WHEN** the user triggers delete
 - **THEN** the system requires a confirmation before writing the file
 
-### Requirement: Add a task
+### Requirement: Add a task to a chosen group
 
-The system SHALL add a new not-done task to the change, appended to the last task group with an id derived from that group's number and the next sequential index.
+The system SHALL let the user add a new not-done task to a specific task group (each `## N. Title` section has its own add control), appending it within that group with an id auto-derived from the group's number and the next available sub-index.
 
-#### Scenario: Add to the last group
+#### Scenario: Add to the chosen group
 
-- **WHEN** the user submits new task text and the last group is `## 8. Verify` with tasks `8.1`–`8.3`
-- **THEN** a line `- [ ] 8.4 <text>` is appended within that group in `tasks.md`
+- **WHEN** the user adds a task to the group `## 2. Build` (which has tasks `2.1`–`2.2`)
+- **THEN** a line `- [ ] 2.3 <text>` is appended inside that section in `tasks.md`, before the next section heading
+
+#### Scenario: Auto-number avoids collisions after a delete
+
+- **WHEN** a group has tasks `1.1` and `1.3` (after `1.2` was deleted) and the user adds a task
+- **THEN** the new task's id is `1.4` (the max existing sub-index plus one), never a duplicate
 
 #### Scenario: Ignore empty input
 

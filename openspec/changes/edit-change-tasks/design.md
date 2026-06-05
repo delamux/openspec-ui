@@ -25,7 +25,7 @@ The parser intentionally discards headings prose, blank lines, and non-task cont
 - **toggle(id, expectedText)** — find the task line; flip the checkbox char (`[ ]`↔`[x]`); nothing else.
 - **editText(id, expectedText, newText)** — replace only the text after the id; keep the checkbox, id, and leading indentation. Reject empty `newText`.
 - **delete(id, expectedText)** — remove the task line and any immediately-following `<!-- ui:comment … -->`…`<!-- /ui:comment -->` block(s) that belong to it; stop at the next task/heading.
-- **add(text)** — append `- [ ] <id> <text>` after the last task line of the last group; derive `<id>` as `<lastGroupNumber>.<count+1>` from the `## N. …` heading.
+- **add(groupTitle, text)** — locate the group by its `## N. Title`, append `- [ ] <id> <text>` after that group's last task (before the next heading); derive `<id>` as `<groupNumber>.<maxSubIndex+1>` so it never collides after a delete. Each section has its own `+` control in the UI.
 
 ### 2b. Locate by id + expected text (optimistic concurrency)
 Operations carry the task `id` **and** the text the UI last loaded. The serializer matches the line by id and verifies its current text equals `expectedText`; on mismatch it throws a "stale" `DomainError` and the op is rejected. **Why:** reads are fresh and this is a local single-user tool, but a drifted line (file edited in an editor meanwhile) must not be clobbered — fail safe and prompt a reload. Tasks with an empty id (rare/malformed) are not editable in this slice.

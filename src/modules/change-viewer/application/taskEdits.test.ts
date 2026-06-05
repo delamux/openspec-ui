@@ -46,10 +46,10 @@ describe('task edit use cases', () => {
     expect(await tasksOf(repo)).toEqual([]);
   });
 
-  it('AddTask appends a new task with a derived id', async () => {
+  it('AddTask appends a new task to the named group with a derived id', async () => {
     const repo = repoWith([{ id: '1.1', text: 'a', done: false }]);
 
-    await new AddTask(repo).execute('/p', 'c', 'b');
+    await new AddTask(repo).execute('/p', 'c', '1. G', 'b');
 
     expect(await tasksOf(repo)).toHaveLength(2);
     expect((await tasksOf(repo))[1]).toMatchObject({ id: '1.2', text: 'b', done: false });

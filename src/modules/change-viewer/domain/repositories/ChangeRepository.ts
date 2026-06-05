@@ -55,10 +55,22 @@ function applyStructuralEdit(list: TaskList, edit: TaskEdit): TaskList {
     if (text.length === 0) {
       throw DomainError.createValidation('Task text must not be empty');
     }
-    const lastGroup = groups[groups.length - 1];
-    const groupNumber = /^(\d+)/.exec(lastGroup.title);
-    const id = groupNumber ? `${groupNumber[1]}.${lastGroup.items.length + 1}` : '';
-    lastGroup.items.push({ id, text, done: false, comments: [] });
+    const group = groups.find((candidate) => candidate.title === edit.groupTitle);
+    if (group === undefined) {
+      throw DomainError.createNotFound(`Task group not found: ${edit.groupTitle}`);
+    }
+    const groupNumber = /^(\d+)/.exec(group.title);
+    let maxIndex = 0;
+    if (groupNumber !== null) {
+      for (const item of group.items) {
+        const sub = new RegExp(`^${groupNumber[1]}\\.(\\d+)`).exec(item.id);
+        if (sub !== null) {
+          maxIndex = Math.max(maxIndex, Number(sub[1]));
+        }
+      }
+    }
+    const id = groupNumber ? `${groupNumber[1]}.${maxIndex + 1}` : '';
+    group.items.push({ id, text, done: false, comments: [] });
     return groups;
   }
 

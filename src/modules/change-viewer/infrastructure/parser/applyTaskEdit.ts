@@ -72,7 +72,7 @@ export function applyTaskEdit(raw: string, edit: TaskEdit): string {
   const lines = raw.split(/\r?\n/);
 
   if (edit.kind === 'add') {
-    insertTask(lines, edit.text);
+    insertTaskInGroup(lines, edit.groupTitle, edit.text);
     return lines.join(eol);
   }
 
@@ -101,34 +101,53 @@ export function applyTaskEdit(raw: string, edit: TaskEdit): string {
   return lines.join(eol);
 }
 
-function insertTask(lines: string[], rawText: string): void {
+const HEADING_TITLE = /^##\s+(.*\S)\s*$/;
+
+function insertTaskInGroup(lines: string[], groupTitle: string, rawText: string): void {
   const text = rawText.trim();
   if (text.length === 0) {
     throw DomainError.createValidation('Task text must not be empty');
   }
 
-  let lastHeading = -1;
-  let lastTask = -1;
+  let headingIndex = -1;
   for (let i = 0; i < lines.length; i++) {
+    const heading = HEADING_TITLE.exec(lines[i]);
+    if (heading !== null && heading[1] === groupTitle) {
+      headingIndex = i;
+      break;
+    }
+  }
+  if (headingIndex === -1) {
+    throw DomainError.createNotFound(`Task group not found: ${groupTitle}`);
+  }
+
+  let groupEnd = lines.length;
+  for (let i = headingIndex + 1; i < lines.length; i++) {
     if (HEADING.test(lines[i])) {
-      lastHeading = i;
-    }
-    if (TASK.test(lines[i])) {
-      lastTask = i;
+      groupEnd = i;
+      break;
     }
   }
 
-  let count = 0;
-  for (let i = lastHeading + 1; i < lines.length; i++) {
-    if (TASK.test(lines[i])) {
-      count++;
+  const groupNumber = /^##\s+(\d+)/.exec(lines[headingIndex]);
+  let lastTask = -1;
+  let maxIndex = 0;
+  for (let i = headingIndex + 1; i < groupEnd; i++) {
+    if (!TASK.test(lines[i])) {
+      continue;
+    }
+    lastTask = i;
+    const parsed = parseTaskLine(lines[i]);
+    if (parsed !== null && groupNumber !== null) {
+      const sub = new RegExp(`^${groupNumber[1]}\\.(\\d+)`).exec(parsed.id);
+      if (sub !== null) {
+        maxIndex = Math.max(maxIndex, Number(sub[1]));
+      }
     }
   }
 
-  const groupNumber = lastHeading >= 0 ? /^##\s+(\d+)/.exec(lines[lastHeading]) : null;
-  const id = groupNumber ? `${groupNumber[1]}.${count + 1}` : '';
+  const id = groupNumber ? `${groupNumber[1]}.${maxIndex + 1}` : '';
   const line = id ? `- [ ] ${id} ${text}` : `- [ ] ${text}`;
-
-  const insertAt = lastTask >= 0 ? endOfCommentBlock(lines, lastTask + 1) : lines.length;
+  const insertAt = lastTask >= 0 ? endOfCommentBlock(lines, lastTask + 1) : headingIndex + 1;
   lines.splice(insertAt, 0, line);
 }

@@ -101,29 +101,42 @@ describe('applyTaskEdit — delete', () => {
 });
 
 describe('applyTaskEdit — add', () => {
-  it('appends to the last group with a derived id', () => {
-    const out = applyTaskEdit(FIXTURE, { kind: 'add', text: 'Wire up CI' });
+  it('appends to the named group with an auto-derived id', () => {
+    const out = applyTaskEdit(FIXTURE, { kind: 'add', groupTitle: '2. Build', text: 'Wire up CI' });
     const lines = out.split('\n');
     const idx = lines.indexOf('- [x] 2.2 Second thing');
 
     expect(lines[idx + 1]).toBe('- [ ] 2.3 Wire up CI');
   });
 
+  it('adds to a non-last group, inside its section', () => {
+    const out = applyTaskEdit(FIXTURE, { kind: 'add', groupTitle: '1. Setup', text: 'Lint setup' });
+    const lines = out.split('\n');
+
+    expect(lines).toContain('- [ ] 1.3 Lint setup');
+    // inserted before the next section heading
+    expect(lines.indexOf('- [ ] 1.3 Lint setup')).toBeLessThan(lines.indexOf('## 2. Build'));
+  });
+
+  it('auto-numbers from the max existing sub-id, avoiding collisions after a delete', () => {
+    const md = '## 1. G\n- [ ] 1.1 a\n- [ ] 1.3 c\n';
+    const out = applyTaskEdit(md, { kind: 'add', groupTitle: '1. G', text: 'd' });
+
+    expect(out).toContain('- [ ] 1.4 d');
+  });
+
   it('ignores blank text', () => {
-    expect(() => applyTaskEdit(FIXTURE, { kind: 'add', text: '   ' })).toThrow(DomainError);
+    expect(() => applyTaskEdit(FIXTURE, { kind: 'add', groupTitle: '1. Setup', text: '   ' })).toThrow(DomainError);
+  });
+
+  it('throws not-found for an unknown group', () => {
+    expect(() => applyTaskEdit(FIXTURE, { kind: 'add', groupTitle: '9. Nope', text: 'x' })).toThrow(DomainError);
   });
 
   it('adds with a trailing-newline file and keeps it', () => {
-    const md = '## 8. Verify\n\n- [ ] 8.1 a\n';
-    const out = applyTaskEdit(md, { kind: 'add', text: 'b' });
+    const out = applyTaskEdit('## 8. Verify\n\n- [ ] 8.1 a\n', { kind: 'add', groupTitle: '8. Verify', text: 'b' });
 
     expect(out).toBe('## 8. Verify\n\n- [ ] 8.1 a\n- [ ] 8.2 b\n');
-  });
-
-  it('adds with no trailing newline', () => {
-    const out = applyTaskEdit('## 8. Verify\n- [ ] 8.1 a', { kind: 'add', text: 'b' });
-
-    expect(out).toBe('## 8. Verify\n- [ ] 8.1 a\n- [ ] 8.2 b');
   });
 });
 

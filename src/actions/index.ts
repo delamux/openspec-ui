@@ -38,7 +38,7 @@ export const server = {
     handler: (input) => deleteTaskHandler(factory, input),
   }),
   addTask: defineAction({
-    input: z.object({ projectPath: z.string(), changeName: z.string(), text: z.string() }),
+    input: z.object({ projectPath: z.string(), changeName: z.string(), groupTitle: z.string(), text: z.string() }),
     handler: (input) => addTaskHandler(factory, input),
   }),
 };

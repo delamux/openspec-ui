@@ -5,6 +5,7 @@ import type { TaskDto, TaskEditResultDto } from '../../../application/dtos';
 interface EditorState {
   editingId: string | null;
   editDraft: string;
+  addingGroup: string | null;
   addDraft: string;
   confirmingDeleteId: string | null;
   pending: boolean;
@@ -14,6 +15,7 @@ interface EditorState {
 export interface TaskEditorView {
   editingId: string | null;
   editDraft: string;
+  addingGroup: string | null;
   addDraft: string;
   confirmingDeleteId: string | null;
   pending: boolean;
@@ -26,13 +28,16 @@ export interface TaskEditorView {
   requestDelete: (task: TaskDto) => void;
   cancelDelete: () => void;
   confirmDelete: (task: TaskDto) => Promise<void>;
+  startAdd: (groupTitle: string) => void;
+  cancelAdd: () => void;
   changeAddDraft: (value: string) => void;
-  submitAdd: (text: string) => Promise<void>;
+  submitAdd: (groupTitle: string, text: string) => Promise<void>;
 }
 
 const initialState: EditorState = {
   editingId: null,
   editDraft: '',
+  addingGroup: null,
   addDraft: '',
   confirmingDeleteId: null,
   pending: false,
@@ -101,23 +106,32 @@ export function useTaskEditor(projectPath: string, changeName: string, onChanged
     await settle(result, () => setState((prev) => ({ ...prev, confirmingDeleteId: null })));
   }
 
+  function startAdd(groupTitle: string): void {
+    setState((prev) => ({ ...prev, addingGroup: groupTitle, addDraft: '', notice: null }));
+  }
+
+  function cancelAdd(): void {
+    setState((prev) => ({ ...prev, addingGroup: null, addDraft: '' }));
+  }
+
   function changeAddDraft(value: string): void {
     setState((prev) => ({ ...prev, addDraft: value }));
   }
 
-  async function submitAdd(rawText: string): Promise<void> {
+  async function submitAdd(groupTitle: string, rawText: string): Promise<void> {
     const text = rawText.trim();
     if (text.length === 0) {
       return;
     }
     setState((prev) => ({ ...prev, pending: true }));
-    const result = await actions.addTask({ projectPath, changeName, text });
-    await settle(result, () => setState((prev) => ({ ...prev, addDraft: '' })));
+    const result = await actions.addTask({ projectPath, changeName, groupTitle, text });
+    await settle(result, () => setState((prev) => ({ ...prev, addingGroup: null, addDraft: '' })));
   }
 
   return {
     editingId: state.editingId,
     editDraft: state.editDraft,
+    addingGroup: state.addingGroup,
     addDraft: state.addDraft,
     confirmingDeleteId: state.confirmingDeleteId,
     pending: state.pending,
@@ -130,6 +144,8 @@ export function useTaskEditor(projectPath: string, changeName: string, onChanged
     requestDelete,
     cancelDelete,
     confirmDelete,
+    startAdd,
+    cancelAdd,
     changeAddDraft,
     submitAdd,
   };
