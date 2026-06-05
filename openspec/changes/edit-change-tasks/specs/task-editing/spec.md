@@ -49,12 +49,17 @@ The system SHALL delete a task — removing its line and any `<!-- ui:comment �
 
 ### Requirement: Reorder tasks within a section
 
-The system SHALL let the user reorder tasks within a section by drag-and-drop, persisting the new order to `tasks.md` and renumbering that section's ids to match the new order (`N.1`, `N.2`, …). Each task keeps its done state, text, and comments; reordering is confined to the task's own section.
+The system SHALL let the user reorder tasks within a section by drag-and-drop, using a drag handle on each task, persisting the new order to `tasks.md` and renumbering that section's ids to match the new order (`N.1`, `N.2`, …). Each task keeps its done state, text, and comments; reordering is confined to the task's own section.
 
 #### Scenario: Drag a task to a new position
 
 - **WHEN** the user drags a task above another within the same section
 - **THEN** the section's tasks are rewritten in the new visual order and renumbered `N.1`, `N.2`, … accordingly, preserving each task's done state, text, and comments
+
+#### Scenario: The new order shows immediately
+
+- **WHEN** the user drops a task in a new position
+- **THEN** the list shows the new order at once (optimistically), without the dragged task snapping back, and the persisted, renumbered result is reconciled when the write completes
 
 #### Scenario: Reorder against a stale snapshot
 

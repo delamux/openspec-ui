@@ -6,13 +6,14 @@ The deferred read-only decision from `view-project-changes` was deliberate preci
 
 ## What Changes
 
-- **Toggle done.** Clicking a task checkbox flips `- [ ]` ⇄ `- [x]` on that line in `tasks.md`.
+- **Toggle done.** Clicking a task checkbox flips `- [ ]` ⇄ `- [x]` on that line in `tasks.md`. A done task is shown muted, **not struck through**.
 - **Edit task text.** Click a task's text to edit it inline (Enter saves, Esc cancels); only the text after the id changes.
-- **Delete task.** A hover delete button removes the task line and its attached `<!-- ui:comment -->` block, behind a lightweight confirm.
-- **Add task.** A bottom "Add a task…" input appends a new `- [ ] <id> <text>` to the last group, with an auto-derived id (`<lastGroupNumber>.<next>`).
-- **Round-trip-safe writes.** All four operations are surgical edits on the raw file text — every untouched line stays byte-identical. After a successful write the change is re-read from disk so the UI always reflects the file.
+- **Delete task + renumber.** A hover delete button removes the task line and its attached `<!-- ui:comment -->` block (behind a lightweight confirm), then **renumbers the rest of that section** so ids stay sequential (delete `6.3` → `6.4` becomes `6.3`).
+- **Add task per section.** Each `## N. Title` section has its own `+ Add task` control; a new `- [ ] <id> <text>` is appended inside that section with an auto-derived id (`<sectionNumber>.<maxSubIndex+1>`, collision-safe).
+- **Reorder (sortable) + renumber.** Tasks are draggable within their section via a drag handle (@dnd-kit); on drop the new order is shown immediately, persisted to `tasks.md`, and the section is auto-renumbered to match.
+- **Round-trip-safe writes.** Every operation is a surgical edit on the raw file text — untouched lines stay byte-identical (only renumbered ids change on delete/reorder). After a successful write the change is re-read from disk so the UI reflects the file, **without leaving the Tasks tab**.
 
-Non-goals (separate slices): posting/editing **comments** (writing `ui:comment` blocks); editing proposal/design markdown; reordering tasks or moving them between groups; creating/renaming groups; multi-user conflict resolution; undo history beyond the delete confirm.
+Non-goals (separate slices): posting/editing **comments** (writing `ui:comment` blocks); editing proposal/design markdown; moving tasks **between** sections; creating/renaming sections; multi-user conflict resolution; undo history beyond the delete confirm.
 
 ## Capabilities
 
