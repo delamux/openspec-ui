@@ -140,5 +140,12 @@ function renderBody(view: ReturnType<typeof useChangeBrowser>) {
   if (view.view.kind === 'error') {
     return message(view.view.message);
   }
-  return <SpecViewer view={(view.view as Extract<ChangeViewResultDto, { kind: 'ok' }>).view} />;
+  return (
+    <SpecViewer
+      view={(view.view as Extract<ChangeViewResultDto, { kind: 'ok' }>).view}
+      projectPath={view.projectPath}
+      changeName={view.changeName}
+      onChanged={view.reload}
+    />
+  );
 }

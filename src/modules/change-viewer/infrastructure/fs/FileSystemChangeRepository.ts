@@ -1,11 +1,13 @@
-import { readdir, readFile, access } from 'node:fs/promises';
+import { readdir, readFile, writeFile, access } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Maybe } from '../../../../shared/domain/Maybe';
 import { DomainError } from '../../../../shared/domain/DomainError';
 import { Change } from '../../domain/Change';
 import type { ChangeDetail } from '../../domain/ChangeDetail';
 import type { ChangeRepository } from '../../domain/repositories/ChangeRepository';
+import type { TaskEdit } from '../../domain/TaskEdit';
 import { parseTasks } from '../parser/parseTasks';
+import { applyTaskEdit } from '../parser/applyTaskEdit';
 
 const PROPOSAL = 'proposal.md';
 const DESIGN = 'design.md';
@@ -31,6 +33,19 @@ export class FileSystemChangeRepository implements ChangeRepository {
       design: await readFileMaybe(join(dir, DESIGN)),
       tasks: tasks.map(parseTasks),
     };
+  }
+
+  async editTasks(projectPath: string, changeName: string, edit: TaskEdit): Promise<void> {
+    const dir = await this.resolveChangeDir(projectPath, changeName);
+    const path = join(dir, TASKS);
+    const current = await readFileMaybe(path);
+    const raw = current.fold(
+      () => {
+        throw DomainError.createNotFound(`Change has no tasks.md: ${changeName}`);
+      },
+      (value) => value,
+    );
+    await writeFile(path, applyTaskEdit(raw, edit), 'utf8');
   }
 
   private async changeNamesIn(dir: string, exclude: string[]): Promise<string[]> {

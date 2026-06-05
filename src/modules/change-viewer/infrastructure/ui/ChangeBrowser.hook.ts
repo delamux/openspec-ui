@@ -30,6 +30,7 @@ export interface ChangeBrowserView {
   init: () => Promise<void>;
   selectProject: (path: string) => Promise<void>;
   selectChange: (projectPath: string, name: string) => Promise<void>;
+  reload: () => Promise<void>;
   toggleTheme: () => void;
 }
 
@@ -117,6 +118,19 @@ export function useChangeBrowser(): ChangeBrowserView {
     await loadView(projectPath, name);
   }
 
+  // Soft reload after an edit: refresh the view in place WITHOUT blanking it, so the
+  // SpecViewer stays mounted and the active tab (and editor state) are preserved.
+  async function reload(): Promise<void> {
+    if (!state.projectPath || !state.changeName) {
+      return;
+    }
+    const response = await actions.loadChange({ projectPath: state.projectPath, changeName: state.changeName });
+    setState((prev) => ({
+      ...prev,
+      view: response.data ?? { kind: 'error', message: 'Failed to reload the change' },
+    }));
+  }
+
   function toggleTheme(): void {
     setState((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }));
   }
@@ -134,6 +148,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     init,
     selectProject,
     selectChange,
+    reload,
     toggleTheme,
   };
 }

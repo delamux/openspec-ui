@@ -5,6 +5,11 @@ import { EnvProjectsRootProvider } from '../../modules/project-discovery/infrast
 import { FileSystemProjectRepository } from '../../modules/project-discovery/infrastructure/fs/FileSystemProjectRepository';
 import { ListChanges } from '../../modules/change-viewer/application/ListChanges';
 import { LoadChange } from '../../modules/change-viewer/application/LoadChange';
+import { ToggleTask } from '../../modules/change-viewer/application/ToggleTask';
+import { EditTaskText } from '../../modules/change-viewer/application/EditTaskText';
+import { DeleteTask } from '../../modules/change-viewer/application/DeleteTask';
+import { AddTask } from '../../modules/change-viewer/application/AddTask';
+import { ReorderTasks } from '../../modules/change-viewer/application/ReorderTasks';
 import type { ChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
 import { FileSystemChangeRepository } from '../../modules/change-viewer/infrastructure/fs/FileSystemChangeRepository';
 
@@ -39,6 +44,26 @@ export class Factory {
 
   loadChange(): LoadChange {
     return new LoadChange(this.dependencies.changeRepository);
+  }
+
+  toggleTask(): ToggleTask {
+    return new ToggleTask(this.dependencies.changeRepository);
+  }
+
+  editTaskText(): EditTaskText {
+    return new EditTaskText(this.dependencies.changeRepository);
+  }
+
+  deleteTask(): DeleteTask {
+    return new DeleteTask(this.dependencies.changeRepository);
+  }
+
+  addTask(): AddTask {
+    return new AddTask(this.dependencies.changeRepository);
+  }
+
+  reorderTasks(): ReorderTasks {
+    return new ReorderTasks(this.dependencies.changeRepository);
   }
 }
 

@@ -75,8 +75,34 @@
 .taskRow {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 9px;
   padding: 9px 10px;
+}
+.dragHandle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  cursor: grab;
+  opacity: 0;
+  touch-action: none;
+  transition: opacity 0.12s, background 0.12s;
+}
+.dragHandle:active {
+  cursor: grabbing;
+}
+.task:hover .dragHandle {
+  opacity: 0.6;
+}
+.dragHandle:hover {
+  opacity: 1;
+  background: var(--muted);
 }
 .taskId {
   font-family: 'JetBrains Mono', monospace;
@@ -88,15 +114,81 @@
 }
 .taskText {
   flex: 1;
-  font-size: 16px;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 6px;
+  color: inherit;
+  cursor: text;
+}
+.taskText:hover {
+  background: var(--muted);
 }
 .taskDone .taskText {
   color: var(--muted-foreground);
-  text-decoration: line-through;
-  text-decoration-color: var(--border);
 }
-.commentBadge {
+.taskEdit {
+  flex: 1;
+  min-width: 0;
+}
+.taskActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
+}
+.deleteSlot {
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.task:hover .deleteSlot {
+  opacity: 1;
+}
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.notice {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid color-mix(in oklch, var(--primary) 25%, transparent);
+}
+.addRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  padding-left: 6px;
+}
+.addTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0 6px;
+  padding: 6px 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.12s;
+}
+.addTrigger:hover {
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--primary);
 }
 
 .thread {
