@@ -80,4 +80,28 @@ describe('FileSystemChangeRepository', () => {
     const list = await repository.listChanges(process.cwd());
     expect(list.some((c) => c.name === '2026-06-04-discover-openspec-projects' && c.isArchived())).toBe(true);
   });
+
+  it('toggles a task on disk, changing only that line', async () => {
+    const dir = await makeChange(project, 'add-auth');
+    const before = '## 1. G\n\n- [ ] 1.1 first\n- [x] 1.2 second\n';
+    await writeFile(join(dir, 'tasks.md'), before, 'utf8');
+
+    await repository.editTasks(project, 'add-auth', { kind: 'toggle', id: '1.1', expectedText: 'first' });
+
+    const { readFile } = await import('node:fs/promises');
+    const after = await readFile(join(dir, 'tasks.md'), 'utf8');
+    expect(after).toBe('## 1. G\n\n- [x] 1.1 first\n- [x] 1.2 second\n');
+  });
+
+  it('rejects a stale edit and leaves the file unchanged', async () => {
+    const dir = await makeChange(project, 'add-auth');
+    const before = '## 1. G\n- [ ] 1.1 first\n';
+    await writeFile(join(dir, 'tasks.md'), before, 'utf8');
+
+    await expect(
+      repository.editTasks(project, 'add-auth', { kind: 'toggle', id: '1.1', expectedText: 'drifted' }),
+    ).rejects.toBeInstanceOf(DomainError);
+    const { readFile } = await import('node:fs/promises');
+    expect(await readFile(join(dir, 'tasks.md'), 'utf8')).toBe(before);
+  });
 });

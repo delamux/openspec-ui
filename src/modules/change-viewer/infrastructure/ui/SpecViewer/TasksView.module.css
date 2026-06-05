@@ -88,15 +88,61 @@
 }
 .taskText {
   flex: 1;
-  font-size: 16px;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 6px;
+  color: inherit;
+  cursor: text;
+}
+.taskText:hover {
+  background: var(--muted);
 }
 .taskDone .taskText {
   color: var(--muted-foreground);
   text-decoration: line-through;
   text-decoration-color: var(--border);
 }
-.commentBadge {
+.taskEdit {
+  flex: 1;
+  min-width: 0;
+}
+.taskActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
+}
+.deleteSlot {
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.task:hover .deleteSlot {
+  opacity: 1;
+}
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.notice {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid color-mix(in oklch, var(--primary) 25%, transparent);
+}
+.addRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 .thread {

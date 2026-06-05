@@ -16,6 +16,9 @@ const TABS: TabItem[] = [
 
 interface SpecViewerProps {
   view: ChangeViewDto;
+  projectPath: string;
+  changeName: string;
+  onChanged: () => Promise<void>;
 }
 
 function Markdown(props: { source: string }) {
@@ -47,7 +50,16 @@ export function SpecViewer(props: SpecViewerProps) {
           : null}
         {active === 'tasks'
           ? props.view.tasks !== null
-            ? <TasksView groups={props.view.tasks} progress={props.view.progress} />
+            ? (
+              <TasksView
+                key={props.changeName}
+                groups={props.view.tasks}
+                progress={props.view.progress}
+                projectPath={props.projectPath}
+                changeName={props.changeName}
+                onChanged={props.onChanged}
+              />
+            )
             : <Empty label="This change has no task list." />
           : null}
       </div>

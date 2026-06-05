@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { listProjectsHandler, listChangesHandler, loadChangeHandler } from './handlers';
+import { listProjectsHandler, listChangesHandler, loadChangeHandler, toggleTaskHandler } from './handlers';
 import { Factory } from '../shared/infrastructure/factory';
 import { InMemoryProjectsRootProvider } from '../modules/project-discovery/domain/repositories/ProjectsRootProvider';
 import { InMemoryProjectRepository } from '../modules/project-discovery/domain/repositories/ProjectRepository';
@@ -62,12 +62,41 @@ describe('action handlers', () => {
     });
   });
 
+  it('toggleTaskHandler returns ok and applies the edit', async () => {
+    const detail: ChangeDetail = {
+      proposal: Maybe.none<string>(),
+      design: Maybe.none<string>(),
+      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
+    };
+    const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
+    const factory = buildFactory(repo);
+
+    expect(await toggleTaskHandler(factory, { projectPath: '/p', changeName: 'c', id: '1.1', expectedText: 'a' })).toEqual({
+      kind: 'ok',
+    });
+    expect((await repo.loadChange('/p', 'c')).tasks.getOrThrow()[0].items[0].done).toBe(true);
+  });
+
+  it('toggleTaskHandler returns stale on a conflict', async () => {
+    const detail: ChangeDetail = {
+      proposal: Maybe.none<string>(),
+      design: Maybe.none<string>(),
+      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
+    };
+    const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
+
+    expect(
+      await toggleTaskHandler(buildFactory(repo), { projectPath: '/p', changeName: 'c', id: '1.1', expectedText: 'drifted' }),
+    ).toEqual({ kind: 'stale' });
+  });
+
   it('loadChangeHandler returns an error dto when the repository throws', async () => {
     const failing: ChangeRepository = {
       listChanges: async () => [],
       loadChange: async () => {
         throw DomainError.createNotFound('Change not found: "ghost"');
       },
+      editTasks: async () => {},
     };
 
     expect(await loadChangeHandler(buildFactory(failing), { projectPath: '/p', changeName: 'ghost' })).toEqual({

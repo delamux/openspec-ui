@@ -1,4 +1,4 @@
-export type DomainErrorKind = 'not-found' | 'validation' | 'generic';
+export type DomainErrorKind = 'not-found' | 'validation' | 'conflict' | 'generic';
 
 export class DomainError extends Error {
   private constructor(
@@ -17,6 +17,10 @@ export class DomainError extends Error {
     return new DomainError('validation', message);
   }
 
+  static createConflict(message: string): DomainError {
+    return new DomainError('conflict', message);
+  }
+
   static create(message: string): DomainError {
     return new DomainError('generic', message);
   }
@@ -27,5 +31,9 @@ export class DomainError extends Error {
 
   isValidation(): boolean {
     return this.kind === 'validation';
+  }
+
+  isConflict(): boolean {
+    return this.kind === 'conflict';
   }
 }

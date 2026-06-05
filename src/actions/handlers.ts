@@ -8,6 +8,7 @@ import {
   toChangeViewDto,
   type ChangeListResultDto,
   type ChangeViewResultDto,
+  type TaskEditResultDto,
 } from '../modules/change-viewer/application/dtos';
 import { DomainError } from '../shared/domain/DomainError';
 
@@ -37,6 +38,48 @@ export async function loadChangeHandler(
   } catch (error) {
     return { kind: 'error', message: messageFrom(error) };
   }
+}
+
+async function runEdit(operation: () => Promise<void>): Promise<TaskEditResultDto> {
+  try {
+    await operation();
+    return { kind: 'ok' };
+  } catch (error) {
+    if (error instanceof DomainError && error.isConflict()) {
+      return { kind: 'stale' };
+    }
+    return { kind: 'error', message: messageFrom(error) };
+  }
+}
+
+export function toggleTaskHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string; id: string; expectedText: string },
+): Promise<TaskEditResultDto> {
+  return runEdit(() => factory.toggleTask().execute(input.projectPath, input.changeName, input.id, input.expectedText));
+}
+
+export function editTaskTextHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string; id: string; expectedText: string; newText: string },
+): Promise<TaskEditResultDto> {
+  return runEdit(() =>
+    factory.editTaskText().execute(input.projectPath, input.changeName, input.id, input.expectedText, input.newText),
+  );
+}
+
+export function deleteTaskHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string; id: string; expectedText: string },
+): Promise<TaskEditResultDto> {
+  return runEdit(() => factory.deleteTask().execute(input.projectPath, input.changeName, input.id, input.expectedText));
+}
+
+export function addTaskHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string; text: string },
+): Promise<TaskEditResultDto> {
+  return runEdit(() => factory.addTask().execute(input.projectPath, input.changeName, input.text));
 }
 
 function messageFrom(error: unknown): string {

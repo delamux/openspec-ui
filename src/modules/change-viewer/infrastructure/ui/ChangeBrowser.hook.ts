@@ -30,6 +30,7 @@ export interface ChangeBrowserView {
   init: () => Promise<void>;
   selectProject: (path: string) => Promise<void>;
   selectChange: (projectPath: string, name: string) => Promise<void>;
+  reload: () => Promise<void>;
   toggleTheme: () => void;
 }
 
@@ -117,6 +118,12 @@ export function useChangeBrowser(): ChangeBrowserView {
     await loadView(projectPath, name);
   }
 
+  async function reload(): Promise<void> {
+    if (state.projectPath && state.changeName) {
+      await loadView(state.projectPath, state.changeName);
+    }
+  }
+
   function toggleTheme(): void {
     setState((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }));
   }
@@ -134,6 +141,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     init,
     selectProject,
     selectChange,
+    reload,
     toggleTheme,
   };
 }

@@ -40,6 +40,11 @@ export type ChangeViewResultDto =
   | { kind: 'ok'; view: ChangeViewDto }
   | { kind: 'error'; message: string };
 
+export type TaskEditResultDto =
+  | { kind: 'ok' }
+  | { kind: 'stale' }
+  | { kind: 'error'; message: string };
+
 export function toChangeSummaryDto(change: Change): ChangeSummaryDto {
   return { name: change.name, status: change.status };
 }
