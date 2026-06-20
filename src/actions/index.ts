@@ -15,6 +15,7 @@ import {
   createWorktreeForChangeHandler,
   removeWorktreeHandler,
   openWorktreeHandler,
+  listSelectableChangesHandler,
 } from './handlers';
 
 const taskTarget = { projectPath: z.string(), changeName: z.string(), id: z.string(), expectedText: z.string() };
@@ -55,6 +56,10 @@ export const server = {
       orderedIds: z.array(z.string()),
     }),
     handler: (input) => reorderTasksHandler(factory, input),
+  }),
+  listSelectableChanges: defineAction({
+    input: z.object({ projectPath: z.string() }),
+    handler: (input) => listSelectableChangesHandler(factory, input),
   }),
   listWorktrees: defineAction({
     input: z.object({ projectPath: z.string() }),

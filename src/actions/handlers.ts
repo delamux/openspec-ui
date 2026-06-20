@@ -9,10 +9,12 @@ import {
   type ChangeListResultDto,
   type ChangeViewResultDto,
   type TaskEditResultDto,
+  type SelectableChangesResultDto,
 } from '../modules/change-viewer/application/dtos';
 import {
   toWorktreeDto,
   toWorktreeActivityItemDto,
+  toSelectableChangeDto,
   type WorktreeListResultDto,
   type WorktreeActivityResultDto,
   type WorktreeCreateResultDto,
@@ -108,6 +110,18 @@ export async function listWorktreesHandler(
   try {
     const overviews = await factory.listWorktrees().execute(input.projectPath);
     return { kind: 'ok', worktrees: overviews.map(toWorktreeDto) };
+  } catch (error) {
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
+export async function listSelectableChangesHandler(
+  factory: Factory,
+  input: { projectPath: string },
+): Promise<SelectableChangesResultDto> {
+  try {
+    const changes = await factory.listSelectableChanges().execute(input.projectPath);
+    return { kind: 'ok', changes: changes.map(toSelectableChangeDto) };
   } catch (error) {
     return { kind: 'error', message: worktreeMessageFrom(error) };
   }

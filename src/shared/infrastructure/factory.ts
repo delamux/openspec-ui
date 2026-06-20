@@ -17,6 +17,7 @@ import { CreateWorktreeForChange } from '../../modules/worktree-management/appli
 import { RemoveWorktree } from '../../modules/worktree-management/application/RemoveWorktree';
 import { GetWorktreesActivity } from '../../modules/worktree-management/application/GetWorktreesActivity';
 import { OpenWorktree } from '../../modules/worktree-management/application/OpenWorktree';
+import { ListSelectableChanges } from '../../modules/worktree-management/application/ListSelectableChanges';
 import type { WorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
 import type { AgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
 import type { AgentTaskScaffolder } from '../../modules/worktree-management/application/ports/AgentTaskScaffolder';
@@ -61,6 +62,10 @@ export class Factory {
 
   listChanges(): ListChanges {
     return new ListChanges(this.dependencies.changeRepository);
+  }
+
+  listSelectableChanges(): ListSelectableChanges {
+    return new ListSelectableChanges(this.dependencies.changeRepository, this.dependencies.worktreeRepository);
   }
 
   loadChange(): LoadChange {

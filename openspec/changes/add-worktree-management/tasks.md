@@ -61,3 +61,9 @@
 - [x] 9.3 `FileSystemAgentTaskScaffolder`: copy `.claude/skills` + `.claude/agents` into the new worktree (so `/openspec-apply-change` exists there), write `CLAUDE_TASK.md` (apply-change prompt naming the change) and `.vscode/tasks.json` (folderOpen → `claude`); temp-dir integration tests, tolerant when the project has no `.claude`
 - [x] 9.4 `VsCodeEditorLauncher` shells `code <path>` (command injectable; failure → `DomainError`); failure-path test
 - [x] 9.5 Factory wiring + `openWorktree` action/handler; "Open in VS Code" button on each worktree card + a post-create hint to open it
+
+## 10. Changes picker sees worktree-only changes
+
+- [x] 10.1 RED→GREEN `ListSelectableChanges(projectPath)` (worktree-management; uses the `ChangeRepository` + `WorktreeRepository` ports): main changes (loaded from the project) plus changes that exist only inside a worktree (excludes worktree copies of main changes), each carrying its `sourcePath` and worktree label; tolerant if a worktree's change list fails
+- [x] 10.2 `SelectableChangeDto` (key/name/status/label/sourcePath/isWorktree) in change-viewer dtos; `toSelectableChangeDto` mapper in worktree-management (keeps the slice dependency pointing change-viewer → none); `listSelectableChanges` action + handler test asserting the worktree label and source path
+- [x] 10.3 ChangeBrowser picker loads from `listSelectableChanges`; selecting a change loads/edits from its `sourcePath` (so a worktree-only change opens its worktree copy); main changes still deep-link via `?change=` (worktree-only changes are not deep-linked)

@@ -1,8 +1,10 @@
 import type { Progress } from '../../change-viewer/domain/TaskList';
+import type { SelectableChangeDto } from '../../change-viewer/application/dtos';
 import type { AgentActivity } from '../domain/AgentActivity';
 import type { AgentStatusKind } from '../domain/AgentStatus';
 import type { WorktreeOverview } from './ListWorktrees';
 import type { WorktreeActivityItem } from './GetWorktreesActivity';
+import type { SelectableChange } from './ListSelectableChanges';
 
 export interface WorktreeDto {
   path: string;
@@ -75,4 +77,29 @@ export function toAgentActivityDto(activity: AgentActivity): AgentActivityDto {
 
 export function toWorktreeActivityItemDto(item: WorktreeActivityItem): WorktreeActivityItemDto {
   return { path: item.path, activity: toAgentActivityDto(item.activity) };
+}
+
+export function toSelectableChangeDto(change: SelectableChange): SelectableChangeDto {
+  return change.worktreeName.fold<SelectableChangeDto>(
+    () => ({
+      key: change.name,
+      name: change.name,
+      status: change.status,
+      label: change.status === 'archived' ? `${stripDate(change.name)} · archived` : change.name,
+      sourcePath: change.sourcePath,
+      isWorktree: false,
+    }),
+    (worktree) => ({
+      key: `${worktree}::${change.name}`,
+      name: change.name,
+      status: change.status,
+      label: `${change.name} · worktree ${worktree}`,
+      sourcePath: change.sourcePath,
+      isWorktree: true,
+    }),
+  );
+}
+
+function stripDate(name: string): string {
+  return name.replace(/^\d{4}-\d{2}-\d{2}-/, '');
 }

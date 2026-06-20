@@ -5,6 +5,7 @@ import {
   removeWorktreeHandler,
   worktreeActivityHandler,
   openWorktreeHandler,
+  listSelectableChangesHandler,
 } from './handlers';
 import { Factory, type AppDependencies } from '../shared/infrastructure/factory';
 import { InMemoryProjectsRootProvider } from '../modules/project-discovery/domain/repositories/ProjectsRootProvider';
@@ -97,6 +98,37 @@ describe('worktree action handlers', () => {
 
     expect(await removeWorktreeHandler(factory, { projectPath: '/p', worktreePath: wtPath })).toEqual({ kind: 'ok' });
     expect((await removeWorktreeHandler(factory, { projectPath: '/p', worktreePath: '/p' })).kind).toBe('error');
+  });
+
+  it('listSelectableChangesHandler labels worktree-only changes and points them at the worktree', async () => {
+    const changeRepository = new InMemoryChangeRepository(
+      new Map([
+        ['/p', [Change.create('add-auth', 'active')]],
+        [wtPath, [Change.create('add-auth', 'active'), Change.create('new-idea', 'active')]],
+      ]),
+    );
+    const worktreeRepository = new InMemoryWorktreeRepository(
+      new Map([['/p', [Worktree.create(wtPath, Maybe.some('change/add-auth'), false)]]]),
+    );
+
+    const result = await listSelectableChangesHandler(buildFactory({ changeRepository, worktreeRepository }), {
+      projectPath: '/p',
+    });
+
+    expect(result).toEqual({
+      kind: 'ok',
+      changes: [
+        { key: 'add-auth', name: 'add-auth', status: 'active', label: 'add-auth', sourcePath: '/p', isWorktree: false },
+        {
+          key: 'add-auth::new-idea',
+          name: 'new-idea',
+          status: 'active',
+          label: 'new-idea · worktree add-auth',
+          sourcePath: wtPath,
+          isWorktree: true,
+        },
+      ],
+    });
   });
 
   it('openWorktreeHandler opens the worktree via the editor launcher', async () => {

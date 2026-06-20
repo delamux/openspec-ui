@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { actions } from 'astro:actions';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
-import type { ChangeListResultDto, ChangeViewResultDto } from '../../application/dtos';
+import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../application/dtos';
 
 export type ThemeMode = 'light' | 'dark';
 export type WorkspaceTab = 'changes' | 'worktrees';
@@ -12,9 +12,11 @@ interface State {
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
-  changes: ChangeListResultDto | null;
+  changes: SelectableChangesResultDto | null;
   changesLoading: boolean;
+  changeKey: string;
   changeName: string;
+  changeSource: string;
   view: ChangeViewResultDto | null;
   viewLoading: boolean;
 }
@@ -25,14 +27,15 @@ export interface ChangeBrowserView {
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
-  changes: ChangeListResultDto | null;
+  changes: SelectableChangesResultDto | null;
   changesLoading: boolean;
+  changeKey: string;
   changeName: string;
   view: ChangeViewResultDto | null;
   viewLoading: boolean;
   init: () => Promise<void>;
   selectProject: (path: string) => Promise<void>;
-  selectChange: (projectPath: string, name: string) => Promise<void>;
+  selectChange: (key: string) => Promise<void>;
   reload: () => Promise<void>;
   toggleTheme: () => void;
   setTab: (tab: WorkspaceTab) => void;
@@ -72,14 +75,16 @@ export function useChangeBrowser(): ChangeBrowserView {
     projectPath: '',
     changes: null,
     changesLoading: false,
+    changeKey: '',
     changeName: '',
+    changeSource: '',
     view: null,
     viewLoading: false,
   });
 
-  async function loadView(projectPath: string, changeName: string): Promise<void> {
-    setState((prev) => ({ ...prev, changeName, viewLoading: true, view: null }));
-    const response = await actions.loadChange({ projectPath, changeName });
+  async function loadView(key: string, sourcePath: string, changeName: string): Promise<void> {
+    setState((prev) => ({ ...prev, changeKey: key, changeName, changeSource: sourcePath, viewLoading: true, view: null }));
+    const response = await actions.loadChange({ projectPath: sourcePath, changeName });
     setState((prev) => ({
       ...prev,
       viewLoading: false,
@@ -88,12 +93,23 @@ export function useChangeBrowser(): ChangeBrowserView {
   }
 
   async function loadChanges(projectPath: string, preselect: string): Promise<void> {
-    setState((prev) => ({ ...prev, changesLoading: true, changes: null, changeName: '', view: null }));
-    const response = await actions.listChanges({ projectPath });
-    const changes: ChangeListResultDto = response.data ?? { kind: 'error', message: 'Failed to load changes' };
+    setState((prev) => ({
+      ...prev,
+      changesLoading: true,
+      changes: null,
+      changeKey: '',
+      changeName: '',
+      changeSource: '',
+      view: null,
+    }));
+    const response = await actions.listSelectableChanges({ projectPath });
+    const changes: SelectableChangesResultDto = response.data ?? { kind: 'error', message: 'Failed to load changes' };
     setState((prev) => ({ ...prev, changes, changesLoading: false }));
-    if (preselect && changes.kind === 'ok' && changes.changes.some((change) => change.name === preselect)) {
-      await loadView(projectPath, preselect);
+    if (preselect && changes.kind === 'ok') {
+      const match = changes.changes.find((change) => !change.isWorktree && change.name === preselect);
+      if (match) {
+        await loadView(match.key, match.sourcePath, match.name);
+      }
     }
   }
 
@@ -118,18 +134,27 @@ export function useChangeBrowser(): ChangeBrowserView {
     await loadChanges(path, '');
   }
 
-  async function selectChange(projectPath: string, name: string): Promise<void> {
-    syncUrl(projectPath, name);
-    await loadView(projectPath, name);
+  async function selectChange(key: string): Promise<void> {
+    const list = state.changes;
+    if (list === null || list.kind !== 'ok') {
+      return;
+    }
+    const selected = list.changes.find((change) => change.key === key);
+    if (selected === undefined) {
+      return;
+    }
+    // Only main changes are deep-linked; worktree-only changes load from their worktree path.
+    syncUrl(state.projectPath, selected.isWorktree ? '' : selected.name);
+    await loadView(selected.key, selected.sourcePath, selected.name);
   }
 
   // Soft reload after an edit: refresh the view in place WITHOUT blanking it, so the
   // SpecViewer stays mounted and the active tab (and editor state) are preserved.
   async function reload(): Promise<void> {
-    if (!state.projectPath || !state.changeName) {
+    if (!state.changeSource || !state.changeName) {
       return;
     }
-    const response = await actions.loadChange({ projectPath: state.projectPath, changeName: state.changeName });
+    const response = await actions.loadChange({ projectPath: state.changeSource, changeName: state.changeName });
     setState((prev) => ({
       ...prev,
       view: response.data ?? { kind: 'error', message: 'Failed to reload the change' },
@@ -152,6 +177,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     projectPath: state.projectPath,
     changes: state.changes,
     changesLoading: state.changesLoading,
+    changeKey: state.changeKey,
     changeName: state.changeName,
     view: state.view,
     viewLoading: state.viewLoading,
