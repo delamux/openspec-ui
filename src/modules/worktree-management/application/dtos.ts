@@ -42,6 +42,8 @@ export type WorktreeCreateResultDto =
 
 export type WorktreeRemoveResultDto = { kind: 'ok' } | { kind: 'error'; message: string };
 
+export type WorktreeOpenResultDto = { kind: 'ok' } | { kind: 'error'; message: string };
+
 function orNull<T>(value: { fold: <R>(onNone: () => R, onSome: (v: T) => R) => R }): T | null {
   return value.fold<T | null>(
     () => null,

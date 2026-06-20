@@ -14,12 +14,13 @@ It also completes the review-feedback loop the tool was built for: watch the age
 - **Remove a worktree.** Remove a non-main worktree via `git worktree remove --force`, with a guard that refuses to remove the main checkout.
 - **Live agent status (polling).** Each worktree card shows the live status of the Claude agent working there — working / thinking / waiting / done / idle, plus last tool, last file, and token count — parsed from Claude Code's session logs under `~/.claude/projects/`. The island re-polls a status Action on a short interval (~3s).
 - **Review the live copy.** In the Worktrees tab, viewing a worktree's change reads and writes the **worktree's** `openspec/changes/<name>/tasks.md` — so toggles and comments land where the agent (running in that worktree) will re-read them.
+- **Bootstrap the agent task (Option A).** On create, the new worktree is *prepared* for an agent: the project's `.claude/skills` + `.claude/agents` are copied in (so `/openspec-apply-change` exists there), and a `CLAUDE_TASK.md` (an apply-change prompt naming the change) + a `.vscode/tasks.json` (folderOpen → `claude`) are written. An **"Open in VS Code"** button on each card shells `code <path>` — opening it kicks off Claude on that task. The app prepares and opens; it does not run the agent headlessly itself.
 
 Non-goals (future changes):
 - **SSE / true push** — v1 polls; a streaming endpoint is a later upgrade.
 - **Prompt-logging hooks** — the `worktree-dashboard init` flow (installing `.claude/hooks` that need `jq` + the `claude` CLI to produce a one-line "what was it asked" summary).
 - **Per-worktree dev servers** — spawning/stopping long-lived `npm run` processes with port assignment.
-- **Open-in-editor / auto-launch Claude** — writing `CLAUDE_TASK.md` + `.vscode/tasks.json` and shelling `code`.
+- **Headless auto-launch of the agent (Option B)** — spawning `claude` unattended from the server on create. We prepare + open (Option A); fully automatic, money-spending launch is deferred.
 - Creating a *new* OpenSpec change from the worktree flow (use `openspec-propose` first); this change branches for changes that already exist.
 
 ## Capabilities

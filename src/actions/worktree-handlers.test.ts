@@ -4,6 +4,7 @@ import {
   createWorktreeForChangeHandler,
   removeWorktreeHandler,
   worktreeActivityHandler,
+  openWorktreeHandler,
 } from './handlers';
 import { Factory, type AppDependencies } from '../shared/infrastructure/factory';
 import { InMemoryProjectsRootProvider } from '../modules/project-discovery/domain/repositories/ProjectsRootProvider';
@@ -13,6 +14,8 @@ import { InMemoryChangeRepository } from '../modules/change-viewer/domain/reposi
 import { Change } from '../modules/change-viewer/domain/Change';
 import { InMemoryWorktreeRepository } from '../modules/worktree-management/domain/repositories/WorktreeRepository';
 import { InMemoryAgentActivityProvider } from '../modules/worktree-management/domain/repositories/AgentActivityProvider';
+import { InMemoryAgentTaskScaffolder } from '../modules/worktree-management/application/ports/AgentTaskScaffolder';
+import { InMemoryEditorLauncher } from '../modules/worktree-management/application/ports/EditorLauncher';
 import { Worktree } from '../modules/worktree-management/domain/Worktree';
 import { AgentStatus } from '../modules/worktree-management/domain/AgentStatus';
 import { noSessionActivity } from '../modules/worktree-management/domain/AgentActivity';
@@ -27,6 +30,8 @@ function buildFactory(overrides: Partial<AppDependencies>): Factory {
     changeRepository: new InMemoryChangeRepository(),
     worktreeRepository: new InMemoryWorktreeRepository(),
     agentActivityProvider: new InMemoryAgentActivityProvider(),
+    agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
+    editorLauncher: new InMemoryEditorLauncher(),
     ...overrides,
   });
 }
@@ -92,6 +97,15 @@ describe('worktree action handlers', () => {
 
     expect(await removeWorktreeHandler(factory, { projectPath: '/p', worktreePath: wtPath })).toEqual({ kind: 'ok' });
     expect((await removeWorktreeHandler(factory, { projectPath: '/p', worktreePath: '/p' })).kind).toBe('error');
+  });
+
+  it('openWorktreeHandler opens the worktree via the editor launcher', async () => {
+    const editorLauncher = new InMemoryEditorLauncher();
+
+    const result = await openWorktreeHandler(buildFactory({ editorLauncher }), { worktreePath: wtPath });
+
+    expect(result).toEqual({ kind: 'ok' });
+    expect(editorLauncher.opened).toEqual([wtPath]);
   });
 
   it('worktreeActivityHandler maps live activity to dtos', async () => {

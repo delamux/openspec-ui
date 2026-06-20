@@ -10,6 +10,8 @@ import { Change } from '../modules/change-viewer/domain/Change';
 import type { ChangeDetail } from '../modules/change-viewer/domain/ChangeDetail';
 import { InMemoryWorktreeRepository } from '../modules/worktree-management/domain/repositories/WorktreeRepository';
 import { InMemoryAgentActivityProvider } from '../modules/worktree-management/domain/repositories/AgentActivityProvider';
+import { InMemoryAgentTaskScaffolder } from '../modules/worktree-management/application/ports/AgentTaskScaffolder';
+import { InMemoryEditorLauncher } from '../modules/worktree-management/application/ports/EditorLauncher';
 import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
 
@@ -20,6 +22,8 @@ function buildFactory(changeRepository: ChangeRepository = new InMemoryChangeRep
     changeRepository,
     worktreeRepository: new InMemoryWorktreeRepository(),
     agentActivityProvider: new InMemoryAgentActivityProvider(),
+    agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
+    editorLauncher: new InMemoryEditorLauncher(),
   });
 }
 

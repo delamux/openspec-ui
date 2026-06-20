@@ -122,6 +122,11 @@ function renderCard(view: WorktreePanelView, worktree: WorktreeDto) {
       ) : null}
 
       <div className={styles.cardActions}>
+        {worktree.isMain ? null : (
+          <Button variant="ghost" onClick={() => view.open(worktree.path)}>
+            Open in VS Code
+          </Button>
+        )}
         {changeName ? (
           <Button variant="ghost" onClick={() => view.review(worktree.path, changeName)}>
             Review

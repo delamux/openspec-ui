@@ -4,11 +4,13 @@ import { WorktreeName } from '../domain/WorktreeName';
 import { BranchName } from '../domain/BranchName';
 import { worktreePath, type WorktreeRepository } from '../domain/repositories/WorktreeRepository';
 import type { ChangeRepository } from '../../change-viewer/domain/repositories/ChangeRepository';
+import type { AgentTaskScaffolder } from './ports/AgentTaskScaffolder';
 
 export class CreateWorktreeForChange {
   constructor(
     private readonly worktrees: WorktreeRepository,
     private readonly changes: ChangeRepository,
+    private readonly scaffolder: AgentTaskScaffolder,
   ) {}
 
   async execute(projectPath: string, changeName: string): Promise<Worktree> {
@@ -16,7 +18,9 @@ export class CreateWorktreeForChange {
     const branch = BranchName.forChange(changeName);
     await this.ensureChangeExists(projectPath, changeName);
     await this.ensureNoExistingWorktree(projectPath, name);
-    return this.worktrees.create(projectPath, name, branch);
+    const created = await this.worktrees.create(projectPath, name, branch);
+    await this.scaffolder.scaffold({ projectPath, worktreePath: created.path, changeName });
+    return created;
   }
 
   private async ensureChangeExists(projectPath: string, changeName: string): Promise<void> {

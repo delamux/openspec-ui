@@ -16,10 +16,15 @@ import { ListWorktrees } from '../../modules/worktree-management/application/Lis
 import { CreateWorktreeForChange } from '../../modules/worktree-management/application/CreateWorktreeForChange';
 import { RemoveWorktree } from '../../modules/worktree-management/application/RemoveWorktree';
 import { GetWorktreesActivity } from '../../modules/worktree-management/application/GetWorktreesActivity';
+import { OpenWorktree } from '../../modules/worktree-management/application/OpenWorktree';
 import type { WorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
 import type { AgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
+import type { AgentTaskScaffolder } from '../../modules/worktree-management/application/ports/AgentTaskScaffolder';
+import type { EditorLauncher } from '../../modules/worktree-management/application/ports/EditorLauncher';
 import { GitWorktreeRepository } from '../../modules/worktree-management/infrastructure/git/GitWorktreeRepository';
 import { ClaudeSessionActivityProvider } from '../../modules/worktree-management/infrastructure/session/ClaudeSessionActivityProvider';
+import { FileSystemAgentTaskScaffolder } from '../../modules/worktree-management/infrastructure/scaffold/FileSystemAgentTaskScaffolder';
+import { VsCodeEditorLauncher } from '../../modules/worktree-management/infrastructure/editor/VsCodeEditorLauncher';
 
 export interface AppDependencies {
   provider: ProjectsRootProvider;
@@ -27,6 +32,8 @@ export interface AppDependencies {
   changeRepository: ChangeRepository;
   worktreeRepository: WorktreeRepository;
   agentActivityProvider: AgentActivityProvider;
+  agentTaskScaffolder: AgentTaskScaffolder;
+  editorLauncher: EditorLauncher;
 }
 
 export class Factory {
@@ -39,6 +46,8 @@ export class Factory {
       changeRepository: new FileSystemChangeRepository(),
       worktreeRepository: new GitWorktreeRepository(),
       agentActivityProvider: new ClaudeSessionActivityProvider(),
+      agentTaskScaffolder: new FileSystemAgentTaskScaffolder(),
+      editorLauncher: new VsCodeEditorLauncher(),
     });
   }
 
@@ -83,7 +92,11 @@ export class Factory {
   }
 
   createWorktreeForChange(): CreateWorktreeForChange {
-    return new CreateWorktreeForChange(this.dependencies.worktreeRepository, this.dependencies.changeRepository);
+    return new CreateWorktreeForChange(
+      this.dependencies.worktreeRepository,
+      this.dependencies.changeRepository,
+      this.dependencies.agentTaskScaffolder,
+    );
   }
 
   removeWorktree(): RemoveWorktree {
@@ -92,6 +105,10 @@ export class Factory {
 
   getWorktreesActivity(): GetWorktreesActivity {
     return new GetWorktreesActivity(this.dependencies.worktreeRepository, this.dependencies.agentActivityProvider);
+  }
+
+  openWorktree(): OpenWorktree {
+    return new OpenWorktree(this.dependencies.editorLauncher);
   }
 }
 

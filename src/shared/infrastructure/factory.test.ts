@@ -12,6 +12,8 @@ import { Change } from '../../modules/change-viewer/domain/Change';
 import { ListWorktrees } from '../../modules/worktree-management/application/ListWorktrees';
 import { InMemoryWorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
 import { InMemoryAgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
+import { InMemoryAgentTaskScaffolder } from '../../modules/worktree-management/application/ports/AgentTaskScaffolder';
+import { InMemoryEditorLauncher } from '../../modules/worktree-management/application/ports/EditorLauncher';
 
 describe('Factory', () => {
   it('builds the use cases from the environment', () => {
@@ -30,6 +32,8 @@ describe('Factory', () => {
       changeRepository: new InMemoryChangeRepository(new Map([['/root/app', [Change.create('c', 'active')]]])),
       worktreeRepository: new InMemoryWorktreeRepository(),
       agentActivityProvider: new InMemoryAgentActivityProvider(),
+      agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
+      editorLauncher: new InMemoryEditorLauncher(),
     });
 
     expect(await factory.discoverProjects().execute()).toEqual({

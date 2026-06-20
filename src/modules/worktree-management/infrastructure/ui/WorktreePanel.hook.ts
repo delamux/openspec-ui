@@ -36,6 +36,7 @@ export interface WorktreePanelView {
   setNewChange: (name: string) => void;
   create: () => Promise<void>;
   remove: (worktreePath: string) => Promise<void>;
+  open: (worktreePath: string) => Promise<void>;
   review: (worktreePath: string, changeName: string) => Promise<void>;
   reloadReview: () => Promise<void>;
   closeReview: () => void;
@@ -99,6 +100,11 @@ export function useWorktreePanel(projectPath: string): WorktreePanelView {
     await loadWorktrees();
   };
 
+  const open = async (worktreePath: string): Promise<void> => {
+    const result = await actions.openWorktree({ worktreePath });
+    setState((prev) => ({ ...prev, notice: result.data?.kind === 'error' ? result.data.message : '' }));
+  };
+
   const review = async (worktreePath: string, changeName: string): Promise<void> => {
     setState((prev) => ({ ...prev, selectedPath: worktreePath, selectedChangeName: changeName, reviewLoading: true }));
     const result = await actions.loadChange({ projectPath: worktreePath, changeName });
@@ -134,6 +140,7 @@ export function useWorktreePanel(projectPath: string): WorktreePanelView {
     setNewChange,
     create,
     remove,
+    open,
     review,
     reloadReview,
     closeReview,
@@ -157,5 +164,5 @@ function noticeFor(result: { kind: string; message?: string } | undefined): stri
   if (result.kind === 'error') {
     return result.message ?? 'Could not create the worktree';
   }
-  return '';
+  return 'Worktree created — click "Open in VS Code" to start the agent on it.';
 }

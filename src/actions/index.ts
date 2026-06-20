@@ -14,6 +14,7 @@ import {
   worktreeActivityHandler,
   createWorktreeForChangeHandler,
   removeWorktreeHandler,
+  openWorktreeHandler,
 } from './handlers';
 
 const taskTarget = { projectPath: z.string(), changeName: z.string(), id: z.string(), expectedText: z.string() };
@@ -70,5 +71,9 @@ export const server = {
   removeWorktree: defineAction({
     input: z.object({ projectPath: z.string(), worktreePath: z.string() }),
     handler: (input) => removeWorktreeHandler(factory, input),
+  }),
+  openWorktree: defineAction({
+    input: z.object({ worktreePath: z.string() }),
+    handler: (input) => openWorktreeHandler(factory, input),
   }),
 };

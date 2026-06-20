@@ -17,6 +17,7 @@ import {
   type WorktreeActivityResultDto,
   type WorktreeCreateResultDto,
   type WorktreeRemoveResultDto,
+  type WorktreeOpenResultDto,
 } from '../modules/worktree-management/application/dtos';
 import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
@@ -145,6 +146,18 @@ export async function removeWorktreeHandler(
 ): Promise<WorktreeRemoveResultDto> {
   try {
     await factory.removeWorktree().execute(input.projectPath, input.worktreePath);
+    return { kind: 'ok' };
+  } catch (error) {
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
+export async function openWorktreeHandler(
+  factory: Factory,
+  input: { worktreePath: string },
+): Promise<WorktreeOpenResultDto> {
+  try {
+    await factory.openWorktree().execute(input.worktreePath);
     return { kind: 'ok' };
   } catch (error) {
     return { kind: 'error', message: worktreeMessageFrom(error) };
