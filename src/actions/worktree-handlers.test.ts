@@ -120,6 +120,14 @@ describe('worktree action handlers', () => {
       changes: [
         { key: 'add-auth', name: 'add-auth', status: 'active', label: 'add-auth', sourcePath: '/p', isWorktree: false },
         {
+          key: 'add-auth::add-auth',
+          name: 'add-auth',
+          status: 'active',
+          label: 'add-auth · worktree add-auth',
+          sourcePath: wtPath,
+          isWorktree: true,
+        },
+        {
           key: 'add-auth::new-idea',
           name: 'new-idea',
           status: 'active',

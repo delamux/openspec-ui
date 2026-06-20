@@ -64,6 +64,6 @@
 
 ## 10. Changes picker sees worktree-only changes
 
-- [x] 10.1 RED→GREEN `ListSelectableChanges(projectPath)` (worktree-management; uses the `ChangeRepository` + `WorktreeRepository` ports): main changes (loaded from the project) plus changes that exist only inside a worktree (excludes worktree copies of main changes), each carrying its `sourcePath` and worktree label; tolerant if a worktree's change list fails
+- [x] 10.1 RED→GREEN `ListSelectableChanges(projectPath)` (worktree-management; uses the `ChangeRepository` + `WorktreeRepository` ports): main changes (active + archived, loaded from the project) plus each worktree's **active** changes (so the live worktree copy of a change is selectable, even when it also exists on main), each carrying its `sourcePath` and worktree label; archived worktree copies are skipped to keep the picker focused; tolerant if a worktree's change list fails
 - [x] 10.2 `SelectableChangeDto` (key/name/status/label/sourcePath/isWorktree) in change-viewer dtos; `toSelectableChangeDto` mapper in worktree-management (keeps the slice dependency pointing change-viewer → none); `listSelectableChanges` action + handler test asserting the worktree label and source path
 - [x] 10.3 ChangeBrowser picker loads from `listSelectableChanges`; selecting a change loads/edits from its `sourcePath` (so a worktree-only change opens its worktree copy); main changes still deep-link via `?change=` (worktree-only changes are not deep-linked)

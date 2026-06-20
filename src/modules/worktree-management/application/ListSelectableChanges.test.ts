@@ -24,7 +24,7 @@ describe('ListSelectableChanges', () => {
     ]);
   });
 
-  it('adds a change that only exists in a worktree, labeled by its worktree', async () => {
+  it('lists every worktree change labeled by its worktree, plus a worktree-only change', async () => {
     const changes = changesAt([
       ['/p', [Change.create('add-auth', 'active')]],
       [wtPath, [Change.create('add-auth', 'active'), Change.create('new-idea', 'active')]],
@@ -39,12 +39,13 @@ describe('ListSelectableChanges', () => {
 
     expect(result.map((c) => `${c.name}@${c.sourcePath}`)).toEqual([
       'add-auth@/p',
+      `add-auth@${wtPath}`,
       `new-idea@${wtPath}`,
     ]);
     expect(result[1].worktreeName.getOrThrow()).toBe('add-auth');
   });
 
-  it('does not duplicate a worktree copy of a change that already exists on main', async () => {
+  it('includes the worktree copy of a change that also exists on main (so the live copy is selectable)', async () => {
     const changes = changesAt([
       ['/p', [Change.create('add-auth', 'active')]],
       [wtPath, [Change.create('add-auth', 'active')]],
@@ -55,7 +56,6 @@ describe('ListSelectableChanges', () => {
 
     const result = await new ListSelectableChanges(changes, worktrees).execute('/p');
 
-    expect(result).toHaveLength(1);
-    expect(result[0].sourcePath).toBe('/p');
+    expect(result.map((c) => c.sourcePath)).toEqual(['/p', wtPath]);
   });
 });

@@ -18,7 +18,6 @@ export class ListSelectableChanges {
 
   async execute(projectPath: string): Promise<SelectableChange[]> {
     const mainChanges = await this.changes.listChanges(projectPath);
-    const mainNames = new Set(mainChanges.map((change) => change.name));
     const selectable: SelectableChange[] = mainChanges.map((change) => ({
       name: change.name,
       status: change.status,
@@ -31,14 +30,16 @@ export class ListSelectableChanges {
       const leaf = leafName(worktree.path);
       const worktreeChanges = await this.listSafely(worktree.path);
       for (const change of worktreeChanges) {
-        if (!mainNames.has(change.name)) {
-          selectable.push({
-            name: change.name,
-            status: change.status,
-            sourcePath: worktree.path,
-            worktreeName: Maybe.some(leaf),
-          });
+        // Worktrees are for active work — skip archived (done) changes to keep the picker focused.
+        if (change.isArchived()) {
+          continue;
         }
+        selectable.push({
+          name: change.name,
+          status: change.status,
+          sourcePath: worktree.path,
+          worktreeName: Maybe.some(leaf),
+        });
       }
     }
     return selectable;
