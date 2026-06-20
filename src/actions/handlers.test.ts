@@ -8,6 +8,8 @@ import { Project } from '../modules/project-discovery/domain/Project';
 import { InMemoryChangeRepository, type ChangeRepository } from '../modules/change-viewer/domain/repositories/ChangeRepository';
 import { Change } from '../modules/change-viewer/domain/Change';
 import type { ChangeDetail } from '../modules/change-viewer/domain/ChangeDetail';
+import { InMemoryWorktreeRepository } from '../modules/worktree-management/domain/repositories/WorktreeRepository';
+import { InMemoryAgentActivityProvider } from '../modules/worktree-management/domain/repositories/AgentActivityProvider';
 import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
 
@@ -16,6 +18,8 @@ function buildFactory(changeRepository: ChangeRepository = new InMemoryChangeRep
     provider: new InMemoryProjectsRootProvider(ProjectsRoot.create('/root')),
     repository: new InMemoryProjectRepository([Project.fromDirectory('/root/app')]),
     changeRepository,
+    worktreeRepository: new InMemoryWorktreeRepository(),
+    agentActivityProvider: new InMemoryAgentActivityProvider(),
   });
 }
 

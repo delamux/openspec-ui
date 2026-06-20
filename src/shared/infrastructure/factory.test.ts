@@ -9,6 +9,9 @@ import { ProjectsRoot } from '../../modules/project-discovery/domain/ProjectsRoo
 import { Project } from '../../modules/project-discovery/domain/Project';
 import { InMemoryChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
 import { Change } from '../../modules/change-viewer/domain/Change';
+import { ListWorktrees } from '../../modules/worktree-management/application/ListWorktrees';
+import { InMemoryWorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
+import { InMemoryAgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
 
 describe('Factory', () => {
   it('builds the use cases from the environment', () => {
@@ -17,6 +20,7 @@ describe('Factory', () => {
     expect(factory.discoverProjects()).toBeInstanceOf(DiscoverProjects);
     expect(factory.listChanges()).toBeInstanceOf(ListChanges);
     expect(factory.loadChange()).toBeInstanceOf(LoadChange);
+    expect(factory.listWorktrees()).toBeInstanceOf(ListWorktrees);
   });
 
   it('wires injected in-memory dependencies end to end', async () => {
@@ -24,6 +28,8 @@ describe('Factory', () => {
       provider: new InMemoryProjectsRootProvider(ProjectsRoot.create('/root')),
       repository: new InMemoryProjectRepository([Project.fromDirectory('/root/app')]),
       changeRepository: new InMemoryChangeRepository(new Map([['/root/app', [Change.create('c', 'active')]]])),
+      worktreeRepository: new InMemoryWorktreeRepository(),
+      agentActivityProvider: new InMemoryAgentActivityProvider(),
     });
 
     expect(await factory.discoverProjects().execute()).toEqual({

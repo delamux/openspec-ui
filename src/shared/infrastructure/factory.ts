@@ -12,11 +12,21 @@ import { AddTask } from '../../modules/change-viewer/application/AddTask';
 import { ReorderTasks } from '../../modules/change-viewer/application/ReorderTasks';
 import type { ChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
 import { FileSystemChangeRepository } from '../../modules/change-viewer/infrastructure/fs/FileSystemChangeRepository';
+import { ListWorktrees } from '../../modules/worktree-management/application/ListWorktrees';
+import { CreateWorktreeForChange } from '../../modules/worktree-management/application/CreateWorktreeForChange';
+import { RemoveWorktree } from '../../modules/worktree-management/application/RemoveWorktree';
+import { GetWorktreesActivity } from '../../modules/worktree-management/application/GetWorktreesActivity';
+import type { WorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
+import type { AgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
+import { GitWorktreeRepository } from '../../modules/worktree-management/infrastructure/git/GitWorktreeRepository';
+import { ClaudeSessionActivityProvider } from '../../modules/worktree-management/infrastructure/session/ClaudeSessionActivityProvider';
 
 export interface AppDependencies {
   provider: ProjectsRootProvider;
   repository: ProjectRepository;
   changeRepository: ChangeRepository;
+  worktreeRepository: WorktreeRepository;
+  agentActivityProvider: AgentActivityProvider;
 }
 
 export class Factory {
@@ -27,6 +37,8 @@ export class Factory {
       provider: new EnvProjectsRootProvider(readProjectsPath()),
       repository: new FileSystemProjectRepository(),
       changeRepository: new FileSystemChangeRepository(),
+      worktreeRepository: new GitWorktreeRepository(),
+      agentActivityProvider: new ClaudeSessionActivityProvider(),
     });
   }
 
@@ -64,6 +76,22 @@ export class Factory {
 
   reorderTasks(): ReorderTasks {
     return new ReorderTasks(this.dependencies.changeRepository);
+  }
+
+  listWorktrees(): ListWorktrees {
+    return new ListWorktrees(this.dependencies.worktreeRepository, this.dependencies.changeRepository);
+  }
+
+  createWorktreeForChange(): CreateWorktreeForChange {
+    return new CreateWorktreeForChange(this.dependencies.worktreeRepository, this.dependencies.changeRepository);
+  }
+
+  removeWorktree(): RemoveWorktree {
+    return new RemoveWorktree(this.dependencies.worktreeRepository);
+  }
+
+  getWorktreesActivity(): GetWorktreesActivity {
+    return new GetWorktreesActivity(this.dependencies.worktreeRepository, this.dependencies.agentActivityProvider);
   }
 }
 

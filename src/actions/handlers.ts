@@ -10,6 +10,15 @@ import {
   type ChangeViewResultDto,
   type TaskEditResultDto,
 } from '../modules/change-viewer/application/dtos';
+import {
+  toWorktreeDto,
+  toWorktreeActivityItemDto,
+  type WorktreeListResultDto,
+  type WorktreeActivityResultDto,
+  type WorktreeCreateResultDto,
+  type WorktreeRemoveResultDto,
+} from '../modules/worktree-management/application/dtos';
+import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
 
 export async function listProjectsHandler(factory: Factory): Promise<DiscoveryResultDto> {
@@ -91,10 +100,69 @@ export function reorderTasksHandler(
   );
 }
 
+export async function listWorktreesHandler(
+  factory: Factory,
+  input: { projectPath: string },
+): Promise<WorktreeListResultDto> {
+  try {
+    const overviews = await factory.listWorktrees().execute(input.projectPath);
+    return { kind: 'ok', worktrees: overviews.map(toWorktreeDto) };
+  } catch (error) {
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
+export async function worktreeActivityHandler(
+  factory: Factory,
+  input: { projectPath: string },
+): Promise<WorktreeActivityResultDto> {
+  try {
+    const items = await factory.getWorktreesActivity().execute(input.projectPath);
+    return { kind: 'ok', items: items.map(toWorktreeActivityItemDto) };
+  } catch (error) {
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
+export async function createWorktreeForChangeHandler(
+  factory: Factory,
+  input: { projectPath: string; changeName: string },
+): Promise<WorktreeCreateResultDto> {
+  try {
+    const worktree = await factory.createWorktreeForChange().execute(input.projectPath, input.changeName);
+    return { kind: 'ok', worktree: toWorktreeDto({ worktree, progress: Maybe.none() }) };
+  } catch (error) {
+    if (error instanceof DomainError && error.isConflict()) {
+      return { kind: 'stale' };
+    }
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
+export async function removeWorktreeHandler(
+  factory: Factory,
+  input: { projectPath: string; worktreePath: string },
+): Promise<WorktreeRemoveResultDto> {
+  try {
+    await factory.removeWorktree().execute(input.projectPath, input.worktreePath);
+    return { kind: 'ok' };
+  } catch (error) {
+    return { kind: 'error', message: worktreeMessageFrom(error) };
+  }
+}
+
 function messageFrom(error: unknown): string {
   if (error instanceof DomainError) {
     // not-found / validation messages are safe (no filesystem paths); technical errors are generalized
     return error.isNotFound() || error.isValidation() ? error.message : 'Could not read the change from disk';
+  }
+  return 'Something went wrong';
+}
+
+function worktreeMessageFrom(error: unknown): string {
+  // The git/worktree DomainError messages are crafted to be user-safe (no leaked internals).
+  if (error instanceof DomainError) {
+    return error.message;
   }
   return 'Something went wrong';
 }

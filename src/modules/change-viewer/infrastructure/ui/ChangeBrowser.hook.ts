@@ -4,9 +4,11 @@ import type { DiscoveryResultDto } from '../../../project-discovery/application/
 import type { ChangeListResultDto, ChangeViewResultDto } from '../../application/dtos';
 
 export type ThemeMode = 'light' | 'dark';
+export type WorkspaceTab = 'changes' | 'worktrees';
 
 interface State {
   theme: ThemeMode;
+  tab: WorkspaceTab;
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
@@ -19,6 +21,7 @@ interface State {
 
 export interface ChangeBrowserView {
   theme: ThemeMode;
+  tab: WorkspaceTab;
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
@@ -32,6 +35,7 @@ export interface ChangeBrowserView {
   selectChange: (projectPath: string, name: string) => Promise<void>;
   reload: () => Promise<void>;
   toggleTheme: () => void;
+  setTab: (tab: WorkspaceTab) => void;
 }
 
 // The first render must be identical on server and client to avoid a hydration
@@ -62,6 +66,7 @@ function syncUrl(projectPath: string, changeName: string): void {
 export function useChangeBrowser(): ChangeBrowserView {
   const [state, setState] = useState<State>({
     theme: 'light',
+    tab: 'changes',
     projects: null,
     projectsLoading: false,
     projectPath: '',
@@ -135,8 +140,13 @@ export function useChangeBrowser(): ChangeBrowserView {
     setState((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }));
   }
 
+  function setTab(tab: WorkspaceTab): void {
+    setState((prev) => ({ ...prev, tab }));
+  }
+
   return {
     theme: state.theme,
+    tab: state.tab,
     projects: state.projects,
     projectsLoading: state.projectsLoading,
     projectPath: state.projectPath,
@@ -150,5 +160,6 @@ export function useChangeBrowser(): ChangeBrowserView {
     selectChange,
     reload,
     toggleTheme,
+    setTab,
   };
 }
