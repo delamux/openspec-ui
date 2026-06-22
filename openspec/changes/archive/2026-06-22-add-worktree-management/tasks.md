@@ -52,7 +52,7 @@
 
 - [x] 8.1 `pnpm test` — all unit + integration tests green (domain, use cases, git adapter against temp repos, session adapter against a fixture, handlers)
 - [x] 8.2 `pnpm astro check` passes (types clean)
-- [ ] 8.3 Manual via `pnpm dev`: pick a project, open Worktrees, create a worktree for an existing change, confirm `git worktree list` shows it under `.claude/worktrees/`, run a Claude agent in it and confirm the status dot and task progress update on poll, drop a comment and confirm it lands in the worktree's `tasks.md`, then remove the worktree
+- [x] 8.3 Manual via `pnpm dev`: pick a project, open Worktrees, create a worktree for an existing change, confirm `git worktree list` shows it under `.claude/worktrees/`, run a Claude agent in it and confirm the status dot and task progress update on poll, drop a comment and confirm it lands in the worktree's `tasks.md`, then remove the worktree
 
 ## 9. Agent bootstrap on create (Option A — prepare + open, no headless launch)
 
