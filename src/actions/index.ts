@@ -10,6 +10,12 @@ import {
   deleteTaskHandler,
   addTaskHandler,
   reorderTasksHandler,
+  listWorktreesHandler,
+  worktreeActivityHandler,
+  createWorktreeForChangeHandler,
+  removeWorktreeHandler,
+  openWorktreeHandler,
+  listSelectableChangesHandler,
 } from './handlers';
 
 const taskTarget = { projectPath: z.string(), changeName: z.string(), id: z.string(), expectedText: z.string() };
@@ -50,5 +56,29 @@ export const server = {
       orderedIds: z.array(z.string()),
     }),
     handler: (input) => reorderTasksHandler(factory, input),
+  }),
+  listSelectableChanges: defineAction({
+    input: z.object({ projectPath: z.string() }),
+    handler: (input) => listSelectableChangesHandler(factory, input),
+  }),
+  listWorktrees: defineAction({
+    input: z.object({ projectPath: z.string() }),
+    handler: (input) => listWorktreesHandler(factory, input),
+  }),
+  worktreeActivity: defineAction({
+    input: z.object({ projectPath: z.string() }),
+    handler: (input) => worktreeActivityHandler(factory, input),
+  }),
+  createWorktreeForChange: defineAction({
+    input: z.object({ projectPath: z.string(), changeName: z.string() }),
+    handler: (input) => createWorktreeForChangeHandler(factory, input),
+  }),
+  removeWorktree: defineAction({
+    input: z.object({ projectPath: z.string(), worktreePath: z.string() }),
+    handler: (input) => removeWorktreeHandler(factory, input),
+  }),
+  openWorktree: defineAction({
+    input: z.object({ worktreePath: z.string() }),
+    handler: (input) => openWorktreeHandler(factory, input),
   }),
 };

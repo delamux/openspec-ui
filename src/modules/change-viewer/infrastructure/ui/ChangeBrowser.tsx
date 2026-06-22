@@ -3,18 +3,22 @@ import {
   Badge,
   IconButton,
   Select,
+  Tabs,
   type SelectOption,
+  type TabItem,
 } from '../../../../shared/infrastructure/ui/components';
 import { useChangeBrowser } from './ChangeBrowser.hook';
 import { SpecViewer } from './SpecViewer/SpecViewer';
 import { IconSun, IconMoon } from './SpecViewer/icons';
+import { WorktreePanel } from '../../../worktree-management/infrastructure/ui/WorktreePanel';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
-import type { ChangeListResultDto, ChangeViewResultDto } from '../../application/dtos';
+import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../application/dtos';
 import styles from './ChangeBrowser.module.css';
 
-function stripDate(name: string): string {
-  return name.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-}
+const WORKSPACE_TABS: TabItem[] = [
+  { id: 'changes', label: 'Changes' },
+  { id: 'worktrees', label: 'Worktrees' },
+];
 
 function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {
   if (projects === null || projects.kind !== 'ok') {
@@ -23,14 +27,11 @@ function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {
   return projects.projects.map((project) => ({ value: project.path, label: project.name }));
 }
 
-function changeOptions(changes: ChangeListResultDto | null): SelectOption[] {
+function changeOptions(changes: SelectableChangesResultDto | null): SelectOption[] {
   if (changes === null || changes.kind !== 'ok') {
     return [];
   }
-  return changes.changes.map((change) => ({
-    value: change.name,
-    label: change.status === 'archived' ? `${stripDate(change.name)} · archived` : change.name,
-  }));
+  return changes.changes.map((change) => ({ value: change.key, label: change.label }));
 }
 
 export function ChangeBrowser() {
@@ -46,7 +47,7 @@ export function ChangeBrowser() {
 
   const selectedChange =
     view.changes !== null && view.changes.kind === 'ok'
-      ? view.changes.changes.find((change) => change.name === view.changeName)
+      ? view.changes.changes.find((change) => change.key === view.changeKey)
       : undefined;
 
   return (
@@ -76,16 +77,21 @@ export function ChangeBrowser() {
               onChange={(value) => view.selectProject(value)}
             />
           </div>
-          <div className={styles.picker}>
-            <Select
-              ariaLabel="Change"
-              placeholder="Select a change…"
-              value={view.changeName}
-              options={changeOptions(view.changes)}
-              disabled={view.changes === null || view.changes.kind !== 'ok' || view.changes.changes.length === 0}
-              onChange={(value) => view.selectChange(view.projectPath, value)}
-            />
-          </div>
+          {view.tab === 'changes' ? (
+            <div className={styles.picker}>
+              <Select
+                ariaLabel="Change"
+                placeholder="Select a change…"
+                value={view.changeKey}
+                options={changeOptions(view.changes)}
+                disabled={view.changes === null || view.changes.kind !== 'ok' || view.changes.changes.length === 0}
+                onChange={(value) => view.selectChange(value)}
+              />
+            </div>
+          ) : null}
+          {view.projectPath !== '' ? (
+            <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+          ) : null}
         </div>
 
         <div className={styles.appbarRight}>
@@ -121,6 +127,9 @@ function renderBody(view: ReturnType<typeof useChangeBrowser>) {
   }
   if (view.projectPath === '') {
     return message('Select a project to begin.');
+  }
+  if (view.tab === 'worktrees') {
+    return <WorktreePanel projectPath={view.projectPath} />;
   }
   if (view.changesLoading || view.changes === null) {
     return message('Loading changes…');

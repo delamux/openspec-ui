@@ -45,6 +45,21 @@ export type TaskEditResultDto =
   | { kind: 'stale' }
   | { kind: 'error'; message: string };
 
+// A change the picker can select: either from the project's main openspec, or
+// one that only exists inside a worktree. `sourcePath` is where to load it from.
+export interface SelectableChangeDto {
+  key: string;
+  name: string;
+  status: ChangeStatus;
+  label: string;
+  sourcePath: string;
+  isWorktree: boolean;
+}
+
+export type SelectableChangesResultDto =
+  | { kind: 'ok'; changes: SelectableChangeDto[] }
+  | { kind: 'error'; message: string };
+
 export function toChangeSummaryDto(change: Change): ChangeSummaryDto {
   return { name: change.name, status: change.status };
 }

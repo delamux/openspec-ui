@@ -1,0 +1,174 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  max-width: 60rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.createRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.message {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--card);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+  flex: none;
+}
+
+.working {
+  background: oklch(0.72 0.19 145);
+}
+
+.thinking {
+  background: oklch(0.75 0.17 85);
+}
+
+.waiting {
+  background: oklch(0.7 0.19 50);
+}
+
+.done {
+  background: oklch(0.65 0.17 255);
+}
+
+.idle {
+  background: var(--muted-foreground);
+}
+
+.no-session {
+  background: var(--border);
+}
+
+.branch {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.statusLabel {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.tokens {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.progress {
+  flex: 1;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--muted);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+}
+
+.progressText {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  flex: none;
+}
+
+.lastFile {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  max-width: 60rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.reviewHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.reviewNote {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 768px) {
+  .createRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
