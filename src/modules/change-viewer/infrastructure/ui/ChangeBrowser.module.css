@@ -118,13 +118,19 @@
   .brand {
     order: 1;
   }
+  /* A zero flex-basis keeps the tab strip from ever forcing the toggle onto a new row:
+     it takes what the brand and toggle leave and scrolls if that is too little. */
   .workspaceTabs {
     order: 2;
-    margin-left: auto;
+    flex: 1 1 0;
     min-width: 0;
+    display: flex;
     overflow-x: auto;
     /* Room for the active-tab underline, which hangs 1px below the tab. */
     padding-bottom: 1px;
+  }
+  .workspaceTabs > * {
+    margin-left: auto;
   }
   .themeToggle {
     order: 3;
@@ -143,5 +149,12 @@
   .statusBadge {
     order: 7;
     margin-left: auto;
+  }
+}
+
+/* Under 380px the brand row cannot hold the name, both tabs and the toggle: logo only. */
+@media (max-width: 379px) {
+  .brandText {
+    display: none;
   }
 }
