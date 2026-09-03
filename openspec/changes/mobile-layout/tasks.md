@@ -13,16 +13,16 @@
 
 ## 3. Tasks view on touch (TasksView, Checkbox)
 
-- [ ] 3.1 Move the `.dragHandle` / `.deleteSlot` `opacity: 0` rules and their `.task:hover` reveals into `@media (hover: hover)` in `TasksView.module.css`; outside it the handle rests at its 0.6 opacity and the delete slot at 1
-- [ ] 3.2 Under `@media (pointer: coarse)`, give `.dragHandle` a 40×40px hit area via padding compensated by negative margin, keeping the row height unchanged
-- [ ] 3.3 Under `@media (pointer: coarse)`, give the Checkbox button (`.check` in `Checkbox.module.css`) a 40×40px hit area the same way; confirm the "Show archived" checkbox in the app bar still aligns
-- [ ] 3.4 At the phone breakpoint make `.addRow` wrap with the Input at `flex-basis: 100%` and Add/Cancel on the next row
-- [ ] 3.5 At the phone breakpoint reduce `.thread`'s left margin to the checkbox column
+- [x] 3.1 Move the `.dragHandle` / `.deleteSlot` `opacity: 0` rules and their `.task:hover` reveals into `@media (hover: hover)` in `TasksView.module.css`; outside it the handle rests at its 0.6 opacity and the delete slot at 1
+- [x] 3.2 Under `@media (pointer: coarse)`, give `.dragHandle` a 40×40px hit area via padding compensated by negative margin, keeping the row height unchanged
+- [x] 3.3 Under `@media (pointer: coarse)`, give the Checkbox button (`.check` in `Checkbox.module.css`) a 40×40px hit area the same way; confirm the "Show archived" checkbox in the app bar still aligns
+- [x] 3.4 At the phone breakpoint make `.addRow` wrap with the Input at `flex-basis: 100%` and Add/Cancel on the next row
+- [x] 3.5 At the phone breakpoint reduce `.thread`'s left margin to the checkbox column
 
 ## 4. Worktree panel on phones (WorktreePanel)
 
-- [ ] 4.1 `.cardHead` and `.cardActions` get `flex-wrap: wrap`; `.branch` gets `min-width: 0` and `overflow-wrap: anywhere` so long branch names break instead of overflowing the card
-- [ ] 4.2 At the phone breakpoint drop `.review`'s horizontal padding and give `.reviewHead` its own, so the nested SpecViewer content keeps a single padding
+- [x] 4.1 `.cardHead` and `.cardActions` get `flex-wrap: wrap`; `.branch` gets `min-width: 0` and `overflow-wrap: anywhere` so long branch names break instead of overflowing the card
+- [x] 4.2 At the phone breakpoint drop `.review`'s horizontal padding and give `.reviewHead` its own, so the nested SpecViewer content keeps a single padding
 
 ## 5. Verification
 
