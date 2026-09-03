@@ -99,3 +99,49 @@
     max-width: none;
   }
 }
+
+/* Phone: the two groups dissolve so their controls become flex items of the app bar
+   itself, and `order` + `flex-basis` lay them out on rows — brand + tabs + toggle,
+   project, change, archived toggle + badge. A control that is not rendered simply
+   leaves no row behind. */
+@media (max-width: 640px) {
+  .appbar {
+    gap: 10px 12px;
+  }
+  .brandSub {
+    display: none;
+  }
+  .pickers,
+  .appbarRight {
+    display: contents;
+  }
+  .brand {
+    order: 1;
+  }
+  .workspaceTabs {
+    order: 2;
+    margin-left: auto;
+    min-width: 0;
+    overflow-x: auto;
+    /* Room for the active-tab underline, which hangs 1px below the tab. */
+    padding-bottom: 1px;
+  }
+  .themeToggle {
+    order: 3;
+  }
+  .projectPicker {
+    order: 4;
+    flex-basis: 100%;
+  }
+  .changePicker {
+    order: 5;
+    flex-basis: 100%;
+  }
+  .archivedToggle {
+    order: 6;
+  }
+  .statusBadge {
+    order: 7;
+    margin-left: auto;
+  }
+}

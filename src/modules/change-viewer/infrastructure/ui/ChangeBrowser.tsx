@@ -77,7 +77,7 @@ export function ChangeBrowser() {
         </div>
 
         <div className={styles.pickers}>
-          <div className={styles.picker}>
+          <div className={`${styles.picker} ${styles.projectPicker}`}>
             <Select
               ariaLabel="Project"
               placeholder="Select a project…"
@@ -100,27 +100,35 @@ export function ChangeBrowser() {
             </div>
           ) : null}
           {view.tab === 'changes' && hasArchived(view.changes) ? (
-            <Checkbox
-              checked={view.showArchived}
-              label="Show archived"
-              ariaLabel="Show archived changes"
-              onChange={() => view.toggleArchived()}
-            />
+            <div className={styles.archivedToggle}>
+              <Checkbox
+                checked={view.showArchived}
+                label="Show archived"
+                ariaLabel="Show archived changes"
+                onChange={() => view.toggleArchived()}
+              />
+            </div>
           ) : null}
           {view.projectPath !== '' ? (
-            <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+            <div className={styles.workspaceTabs}>
+              <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+            </div>
           ) : null}
         </div>
 
         <div className={styles.appbarRight}>
-          {selectedChange ? (
-            <Badge tone={selectedChange.status === 'archived' ? 'muted' : 'primary'}>
-              {selectedChange.status === 'archived' ? 'Archived' : 'Active'}
-            </Badge>
+          {view.tab === 'changes' && selectedChange ? (
+            <div className={styles.statusBadge}>
+              <Badge tone={selectedChange.status === 'archived' ? 'muted' : 'primary'}>
+                {selectedChange.status === 'archived' ? 'Archived' : 'Active'}
+              </Badge>
+            </div>
           ) : null}
-          <IconButton ariaLabel="Toggle theme" onClick={() => view.toggleTheme()}>
-            {view.theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
-          </IconButton>
+          <div className={styles.themeToggle}>
+            <IconButton ariaLabel="Toggle theme" onClick={() => view.toggleTheme()}>
+              {view.theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
+            </IconButton>
+          </div>
         </div>
       </header>
 

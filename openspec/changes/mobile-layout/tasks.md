@@ -6,9 +6,9 @@
 
 ## 2. App bar phone layout (ChangeBrowser)
 
-- [ ] 2.1 Give each app-bar leaf a wrapper with a module class in `ChangeBrowser.tsx`: `archivedToggle` around the Checkbox, `workspaceTabs` around the Tabs, `statusBadge` around the Badge (the two picker wrappers already exist); no change to DOM order or to the shared primitives
-- [ ] 2.2 Add the `max-width: 640px` block to `ChangeBrowser.module.css`: `.pickers` and `.appbarRight` become `display: contents`; assign `order` and `flex-basis` per design Decision 2 (brand 1, tabs 2 with `margin-left: auto`, toggle 3, project select 4 at 100%, change select 5 at 100%, archived toggle 6, badge 7 with `margin-left: auto`)
-- [ ] 2.3 Hide `.brandSub` at the phone breakpoint and give `.tabnav` in `Tabs.module.css` `overflow-x: auto` as the under-360px safety net
+- [x] 2.1 Give each app-bar leaf a wrapper with a module class in `ChangeBrowser.tsx`: `archivedToggle` around the Checkbox, `workspaceTabs` around the Tabs, `statusBadge` around the Badge (the two picker wrappers already exist); no change to DOM order or to the shared primitives
+- [x] 2.2 Add the `max-width: 640px` block to `ChangeBrowser.module.css`: `.pickers` and `.appbarRight` become `display: contents`; assign `order` and `flex-basis` per design Decision 2 (brand 1, tabs 2 with `margin-left: auto`, toggle 3, project select 4 at 100%, change select 5 at 100%, archived toggle 6, badge 7 with `margin-left: auto`)
+- [x] 2.3 Hide `.brandSub` at the phone breakpoint and give the app bar's `.workspaceTabs` wrapper `overflow-x: auto` (plus 1px bottom padding for the tab underline) as the under-360px safety net — on `.tabnav` itself the overflow would clip the underline in every tab strip
 - [ ] 2.4 Check the 641–768px range still renders the previous wrapped layout (pickers side by side under the brand) and desktop is untouched
 
 ## 3. Tasks view on touch (TasksView, Checkbox)
