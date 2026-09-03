@@ -1,3 +1,8 @@
+/* ===== Breakpoints =====
+   Media queries cannot read custom properties, so every module repeats these literals:
+   phone  = max-width: 640px  (stacked app bar, single-column rows)
+   tablet = max-width: 768px  (wrapped app bar, tighter padding, 44px icon buttons)
+   Touch behavior keys on (hover: hover) / (pointer: coarse), never on width. */
 /* ===== shadcn-style design tokens (ported from the design prototype) ===== */
 :root {
   --radius: 10px;
@@ -141,10 +146,14 @@ astro-island {
   color: var(--foreground);
   font-size: 14px;
 }
+.prose .tableWrap {
+  overflow-x: auto;
+  margin: 0 0 18px;
+}
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 0 18px;
+  margin: 0;
   font-size: 13.5px;
 }
 .prose th,

@@ -1,8 +1,8 @@
 ## 1. Breakpoints and prose tables (change-viewer, shared styles)
 
-- [ ] 1.1 Name the two breakpoints (640px phone, 768px tablet) in a comment at the top of `src/styles/openspec-ui.css` so every module's media query refers to the same values
-- [ ] 1.2 RED→GREEN `renderMarkdown` wraps a pipe table in `<div class="tableWrap">…</div>`: add the failing case to `markdown.test.ts` (table wrapped once; a document with no table is unchanged), then make it pass in `markdown.ts`
-- [ ] 1.3 Style `.prose .tableWrap` in `openspec-ui.css` with `overflow-x: auto` and the table's bottom margin moved onto the wrapper, so the table keeps its look and scrolls inside it
+- [x] 1.1 Name the two breakpoints (640px phone, 768px tablet) in a comment at the top of `src/styles/openspec-ui.css` so every module's media query refers to the same values
+- [x] 1.2 RED→GREEN `renderMarkdown` wraps a pipe table in `<div class="tableWrap">…</div>`: add the failing case to `markdown.test.ts` (table wrapped once; a document with no table is unchanged), then make it pass in `markdown.ts`
+- [x] 1.3 Style `.prose .tableWrap` in `openspec-ui.css` with `overflow-x: auto` and the table's bottom margin moved onto the wrapper, so the table keeps its look and scrolls inside it
 
 ## 2. App bar phone layout (ChangeBrowser)
 

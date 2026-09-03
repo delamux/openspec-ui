@@ -30,12 +30,16 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown('1. first\n2. second')).toBe('<ol><li>first</li><li>second</li></ol>');
   });
 
-  it('renders pipe tables', () => {
+  it('renders pipe tables inside a scroll wrapper', () => {
     const md = '| Area | Effect |\n| --- | --- |\n| Onboarding | Removes step |';
     expect(renderMarkdown(md)).toBe(
-      '<table><thead><tr><th>Area</th><th>Effect</th></tr></thead>' +
-        '<tbody><tr><td>Onboarding</td><td>Removes step</td></tr></tbody></table>',
+      '<div class="tableWrap"><table><thead><tr><th>Area</th><th>Effect</th></tr></thead>' +
+        '<tbody><tr><td>Onboarding</td><td>Removes step</td></tr></tbody></table></div>',
     );
+  });
+
+  it('wraps only tables', () => {
+    expect(renderMarkdown('plain text\n\n- item')).not.toContain('tableWrap');
   });
 
   it('joins wrapped paragraph lines', () => {
