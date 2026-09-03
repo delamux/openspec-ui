@@ -6,9 +6,17 @@ export interface SelectOption {
   label: string;
 }
 
+// A non-selectable heading with its own options below it (a native <optgroup>).
+export interface SelectGroup {
+  label: string;
+  options: SelectOption[];
+}
+
+export type SelectItem = SelectOption | SelectGroup;
+
 interface SelectProps {
   value: string;
-  options: SelectOption[];
+  options: SelectItem[];
   onChange: (value: string) => void;
   placeholder?: string;
   ariaLabel?: string;
@@ -30,11 +38,15 @@ export function Select(props: SelectProps) {
             {props.placeholder}
           </option>
         ) : null}
-        {props.options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {props.options.map((item) =>
+          isGroup(item) ? (
+            <optgroup key={item.label} label={item.label}>
+              {item.options.map(renderOption)}
+            </optgroup>
+          ) : (
+            renderOption(item)
+          ),
+        )}
       </select>
       <svg
         className={styles.chevron}
@@ -52,4 +64,16 @@ export function Select(props: SelectProps) {
       </svg>
     </div>
   );
+}
+
+function renderOption(option: SelectOption) {
+  return (
+    <option key={option.value} value={option.value}>
+      {option.label}
+    </option>
+  );
+}
+
+function isGroup(item: SelectItem): item is SelectGroup {
+  return 'options' in item;
 }

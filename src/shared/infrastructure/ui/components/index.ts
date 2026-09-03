@@ -1,4 +1,4 @@
-export { Select, type SelectOption } from './Select/Select';
+export { Select, type SelectOption, type SelectGroup, type SelectItem } from './Select/Select';
 export { Tabs, type TabItem } from './Tabs/Tabs';
 export { Checkbox } from './Checkbox/Checkbox';
 export { Badge } from './Badge/Badge';

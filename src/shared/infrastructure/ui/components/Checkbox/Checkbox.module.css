@@ -1,11 +1,20 @@
 .check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.box {
   width: 19px;
   height: 19px;
   flex-shrink: 0;
-  padding: 0;
   line-height: 0;
   border-radius: 6px;
-  cursor: pointer;
   border: 1.5px solid var(--input);
   background: var(--background);
   display: grid;
@@ -16,7 +25,7 @@
 .mark {
   display: block;
 }
-.check:not(:disabled):hover {
+.check:not(:disabled):hover .box {
   border-color: var(--primary);
 }
 .check:disabled {
@@ -25,4 +34,9 @@
 .checked {
   background: var(--primary);
   border-color: var(--primary);
+}
+.label {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
 }

@@ -9,6 +9,7 @@ export type WorkspaceTab = 'changes' | 'worktrees';
 interface State {
   theme: ThemeMode;
   tab: WorkspaceTab;
+  showArchived: boolean;
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
@@ -24,6 +25,7 @@ interface State {
 export interface ChangeBrowserView {
   theme: ThemeMode;
   tab: WorkspaceTab;
+  showArchived: boolean;
   projects: DiscoveryResultDto | null;
   projectsLoading: boolean;
   projectPath: string;
@@ -38,6 +40,7 @@ export interface ChangeBrowserView {
   selectChange: (key: string) => Promise<void>;
   reload: () => Promise<void>;
   toggleTheme: () => void;
+  toggleArchived: () => void;
   setTab: (tab: WorkspaceTab) => void;
 }
 
@@ -70,6 +73,7 @@ export function useChangeBrowser(): ChangeBrowserView {
   const [state, setState] = useState<State>({
     theme: 'light',
     tab: 'changes',
+    showArchived: false,
     projects: null,
     projectsLoading: false,
     projectPath: '',
@@ -106,7 +110,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     const changes: SelectableChangesResultDto = response.data ?? { kind: 'error', message: 'Failed to load changes' };
     setState((prev) => ({ ...prev, changes, changesLoading: false }));
     if (preselect && changes.kind === 'ok') {
-      const match = changes.changes.find((change) => !change.isWorktree && change.name === preselect);
+      const match = changes.changes.find((change) => change.worktreeName === null && change.name === preselect);
       if (match) {
         await loadView(match.key, match.sourcePath, match.name);
       }
@@ -143,8 +147,8 @@ export function useChangeBrowser(): ChangeBrowserView {
     if (selected === undefined) {
       return;
     }
-    // Only main changes are deep-linked; worktree-only changes load from their worktree path.
-    syncUrl(state.projectPath, selected.isWorktree ? '' : selected.name);
+    // Only main changes are deep-linked; worktree changes load from their worktree path.
+    syncUrl(state.projectPath, selected.worktreeName === null ? selected.name : '');
     await loadView(selected.key, selected.sourcePath, selected.name);
   }
 
@@ -165,6 +169,10 @@ export function useChangeBrowser(): ChangeBrowserView {
     setState((prev) => ({ ...prev, theme: prev.theme === 'dark' ? 'light' : 'dark' }));
   }
 
+  function toggleArchived(): void {
+    setState((prev) => ({ ...prev, showArchived: !prev.showArchived }));
+  }
+
   function setTab(tab: WorkspaceTab): void {
     setState((prev) => ({ ...prev, tab }));
   }
@@ -172,6 +180,7 @@ export function useChangeBrowser(): ChangeBrowserView {
   return {
     theme: state.theme,
     tab: state.tab,
+    showArchived: state.showArchived,
     projects: state.projects,
     projectsLoading: state.projectsLoading,
     projectPath: state.projectPath,
@@ -186,6 +195,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     selectChange,
     reload,
     toggleTheme,
+    toggleArchived,
     setTab,
   };
 }

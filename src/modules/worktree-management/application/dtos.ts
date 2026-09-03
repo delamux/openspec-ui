@@ -79,25 +79,38 @@ export function toWorktreeActivityItemDto(item: WorktreeActivityItem): WorktreeA
   return { path: item.path, activity: toAgentActivityDto(item.activity) };
 }
 
+// The worktree and the archive live in the picker's group headings, so the label
+// carries only what tells two changes apart: the change name and its task count.
 export function toSelectableChangeDto(change: SelectableChange): SelectableChangeDto {
-  return change.worktreeName.fold<SelectableChangeDto>(
-    () => ({
-      key: change.name,
-      name: change.name,
-      status: change.status,
-      label: change.status === 'archived' ? `${stripDate(change.name)} · archived` : change.name,
-      sourcePath: change.sourcePath,
-      isWorktree: false,
-    }),
-    (worktree) => ({
-      key: `${worktree}::${change.name}`,
-      name: change.name,
-      status: change.status,
-      label: `${change.name} · worktree ${worktree}`,
-      sourcePath: change.sourcePath,
-      isWorktree: true,
-    }),
+  const taskProgress = orNull(change.progress);
+  return {
+    key: keyOf(change),
+    name: change.name,
+    status: change.status,
+    label: withTaskCount(displayName(change), taskProgress),
+    sourcePath: change.sourcePath,
+    worktreeName: orNull(change.worktreeName),
+    progress: taskProgress,
+  };
+}
+
+// Archived changes are stored under their archive date; the "Archived" heading already says as much.
+function displayName(change: SelectableChange): string {
+  return change.status === 'archived' ? stripDate(change.name) : change.name;
+}
+
+function keyOf(change: SelectableChange): string {
+  return change.worktreeName.fold(
+    () => change.name,
+    (worktree) => `${worktree}::${change.name}`,
   );
+}
+
+function withTaskCount(label: string, taskProgress: Progress | null): string {
+  if (taskProgress === null || taskProgress.total === 0) {
+    return label;
+  }
+  return `${label} · ${taskProgress.done}/${taskProgress.total} tasks`;
 }
 
 function stripDate(name: string): string {

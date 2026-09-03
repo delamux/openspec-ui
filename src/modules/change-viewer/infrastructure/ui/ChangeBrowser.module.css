@@ -47,6 +47,7 @@
 
 .pickers {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex: 1;
   min-width: 0;
@@ -56,6 +57,10 @@
   min-width: 0;
   width: 100%;
   max-width: 16rem;
+}
+/* The change labels carry the worktree/archived marker plus the task count, so they need the extra room. */
+.changePicker {
+  max-width: 23rem;
 }
 
 .appbarRight {
@@ -89,7 +94,8 @@
     flex-basis: 100%;
     justify-content: stretch;
   }
-  .picker {
+  .picker,
+  .changePicker {
     max-width: none;
   }
 }
