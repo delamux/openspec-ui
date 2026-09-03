@@ -40,3 +40,12 @@
   color: var(--muted-foreground);
   white-space: nowrap;
 }
+
+/* A finger needs a 40px target. Equal padding and negative margin grow the hit area
+   outward while the box and label stay exactly where they are. */
+@media (pointer: coarse) {
+  .check {
+    padding: 10.5px;
+    margin: -10.5px;
+  }
+}
