@@ -18,6 +18,7 @@
 - [x] 3.3 Under `@media (pointer: coarse)`, give the Checkbox button (`.check` in `Checkbox.module.css`) a 40×40px hit area the same way; confirm the "Show archived" checkbox in the app bar still aligns
 - [x] 3.4 At the phone breakpoint make `.addRow` wrap with the Input at `flex-basis: 100%` and Add/Cancel on the next row
 - [x] 3.5 At the phone breakpoint reduce `.thread`'s left margin to the checkbox column
+- [x] 3.6 Break long unbreakable task text (`overflow-wrap: anywhere` on `.taskText`) so it wraps instead of running under the delete button, which the always-visible delete button on touch made plain
 
 ## 4. Worktree panel on phones (WorktreePanel)
 

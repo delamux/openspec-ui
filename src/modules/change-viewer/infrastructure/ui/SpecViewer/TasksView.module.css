@@ -111,6 +111,9 @@
 .taskText {
   flex: 1;
   min-width: 0;
+  /* Task text runs to slash-joined tokens like `working/thinking/waiting`, which have no
+     break opportunity; without this they overflow under the delete button on a phone. */
+  overflow-wrap: anywhere;
   font-family: inherit;
   font-size: 14px;
   text-align: left;

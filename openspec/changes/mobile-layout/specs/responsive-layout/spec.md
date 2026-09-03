@@ -61,6 +61,11 @@ At viewport widths of 640px or less the system SHALL place the add-task input on
 - **WHEN** the user opens the add-task row at 390px
 - **THEN** the input spans the full content width and Add and Cancel appear below it, both fully visible
 
+#### Scenario: Task text with no break opportunity
+
+- **WHEN** a task's text contains a long slash-joined token (for example `working/thinking/waiting/done/idle/no-session`) at 390px
+- **THEN** the text breaks within the token and stays clear of the delete button, which never has text drawn over it
+
 #### Scenario: Reading comments on a phone
 
 - **WHEN** a task with comments is shown at 390px
