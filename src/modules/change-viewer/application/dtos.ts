@@ -1,6 +1,6 @@
 import type { Change, ChangeStatus } from '../domain/Change';
 import type { ChangeDetail } from '../domain/ChangeDetail';
-import { progress, type TaskList } from '../domain/TaskList';
+import { progress, type Progress, type TaskList } from '../domain/TaskList';
 
 export interface ChangeSummaryDto {
   name: string;
@@ -46,14 +46,16 @@ export type TaskEditResultDto =
   | { kind: 'error'; message: string };
 
 // A change the picker can select: either from the project's main openspec, or
-// one that only exists inside a worktree. `sourcePath` is where to load it from.
+// one that only exists inside a worktree. `sourcePath` is where to load it from,
+// and `worktreeName` is null for the changes of the main checkout.
 export interface SelectableChangeDto {
   key: string;
   name: string;
   status: ChangeStatus;
   label: string;
   sourcePath: string;
-  isWorktree: boolean;
+  worktreeName: string | null;
+  progress: Progress | null;
 }
 
 export type SelectableChangesResultDto =

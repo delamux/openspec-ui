@@ -50,6 +50,7 @@
 .cardHead {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -86,6 +87,8 @@
 }
 
 .branch {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-mono, monospace);
   font-size: 0.875rem;
   font-weight: 500;
@@ -139,6 +142,7 @@
 
 .cardActions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
   margin-top: 0.25rem;
@@ -170,5 +174,16 @@
   .createRow {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* Phone: the nested change viewer brings its own content padding, so the review
+   container keeps padding only around its header row. */
+@media (max-width: 640px) {
+  .review {
+    padding: 1rem 0;
+  }
+  .reviewHead {
+    padding: 0 1rem;
   }
 }

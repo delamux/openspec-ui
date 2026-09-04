@@ -90,18 +90,14 @@
   border-radius: 5px;
   color: var(--muted-foreground);
   cursor: grab;
-  opacity: 0;
+  opacity: 0.6;
   touch-action: none;
   transition: opacity 0.12s, background 0.12s;
 }
 .dragHandle:active {
   cursor: grabbing;
 }
-.task:hover .dragHandle {
-  opacity: 0.6;
-}
 .dragHandle:hover {
-  opacity: 1;
   background: var(--muted);
 }
 .taskId {
@@ -115,6 +111,9 @@
 .taskText {
   flex: 1;
   min-width: 0;
+  /* Task text runs to slash-joined tokens like `working/thinking/waiting`, which have no
+     break opportunity; without this they overflow under the delete button on a phone. */
+  overflow-wrap: anywhere;
   font-family: inherit;
   font-size: 14px;
   text-align: left;
@@ -143,11 +142,30 @@
   flex-shrink: 0;
 }
 .deleteSlot {
-  opacity: 0;
   transition: opacity 0.12s;
 }
-.task:hover .deleteSlot {
-  opacity: 1;
+/* Only a device that can hover hides the handle and the delete button until the row is
+   hovered; a touch screen never hovers, so there they stay visible. */
+@media (hover: hover) {
+  .dragHandle,
+  .deleteSlot {
+    opacity: 0;
+  }
+  .task:hover .dragHandle {
+    opacity: 0.6;
+  }
+  .task:hover .dragHandle:hover,
+  .task:hover .deleteSlot {
+    opacity: 1;
+  }
+}
+/* A finger needs a 40px target; the negative margins keep the row's layout unchanged. */
+@media (pointer: coarse) {
+  .dragHandle {
+    width: 40px;
+    height: 40px;
+    margin: -8px -10px;
+  }
 }
 .confirm {
   display: flex;
@@ -227,4 +245,17 @@
   line-height: 1.55;
   white-space: pre-wrap;
   color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground));
+}
+
+@media (max-width: 640px) {
+  .addRow {
+    flex-wrap: wrap;
+  }
+  .addRow > :first-child {
+    flex-basis: 100%;
+  }
+  /* Indent the thread to the checkbox column (row padding + handle + gap), not past it. */
+  .thread {
+    margin-left: 39px;
+  }
 }

@@ -100,7 +100,7 @@ describe('worktree action handlers', () => {
     expect((await removeWorktreeHandler(factory, { projectPath: '/p', worktreePath: '/p' })).kind).toBe('error');
   });
 
-  it('listSelectableChangesHandler labels worktree-only changes and points them at the worktree', async () => {
+  it('listSelectableChangesHandler names the worktree of every worktree change and points it at the worktree', async () => {
     const changeRepository = new InMemoryChangeRepository(
       new Map([
         ['/p', [Change.create('add-auth', 'active')]],
@@ -118,22 +118,32 @@ describe('worktree action handlers', () => {
     expect(result).toEqual({
       kind: 'ok',
       changes: [
-        { key: 'add-auth', name: 'add-auth', status: 'active', label: 'add-auth', sourcePath: '/p', isWorktree: false },
+        {
+          key: 'add-auth',
+          name: 'add-auth',
+          status: 'active',
+          label: 'add-auth',
+          sourcePath: '/p',
+          worktreeName: null,
+          progress: null,
+        },
         {
           key: 'add-auth::add-auth',
           name: 'add-auth',
           status: 'active',
-          label: 'add-auth · worktree add-auth',
+          label: 'add-auth',
           sourcePath: wtPath,
-          isWorktree: true,
+          worktreeName: 'add-auth',
+          progress: null,
         },
         {
           key: 'add-auth::new-idea',
           name: 'new-idea',
           status: 'active',
-          label: 'new-idea · worktree add-auth',
+          label: 'new-idea',
           sourcePath: wtPath,
-          isWorktree: true,
+          worktreeName: 'add-auth',
+          progress: null,
         },
       ],
     });

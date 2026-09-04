@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import {
   Badge,
+  Checkbox,
   IconButton,
   Select,
   Tabs,
   type SelectOption,
   type TabItem,
 } from '../../../../shared/infrastructure/ui/components';
+import { changePickerItems } from './changePickerItems';
 import { useChangeBrowser } from './ChangeBrowser.hook';
 import { SpecViewer } from './SpecViewer/SpecViewer';
 import { IconSun, IconMoon } from './SpecViewer/icons';
@@ -27,11 +29,19 @@ function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {
   return projects.projects.map((project) => ({ value: project.path, label: project.name }));
 }
 
-function changeOptions(changes: SelectableChangesResultDto | null): SelectOption[] {
-  if (changes === null || changes.kind !== 'ok') {
-    return [];
+function projectName(projects: DiscoveryResultDto | null, projectPath: string): string {
+  if (projects === null || projects.kind !== 'ok') {
+    return 'Changes';
   }
-  return changes.changes.map((change) => ({ value: change.key, label: change.label }));
+  const project = projects.projects.find((candidate) => candidate.path === projectPath);
+  return project?.name ?? 'Changes';
+}
+
+function hasArchived(changes: SelectableChangesResultDto | null): boolean {
+  if (changes === null || changes.kind !== 'ok') {
+    return false;
+  }
+  return changes.changes.some((change) => change.status === 'archived');
 }
 
 export function ChangeBrowser() {
@@ -67,7 +77,7 @@ export function ChangeBrowser() {
         </div>
 
         <div className={styles.pickers}>
-          <div className={styles.picker}>
+          <div className={`${styles.picker} ${styles.projectPicker}`}>
             <Select
               ariaLabel="Project"
               placeholder="Select a project…"
@@ -78,37 +88,65 @@ export function ChangeBrowser() {
             />
           </div>
           {view.tab === 'changes' ? (
-            <div className={styles.picker}>
+            <div className={`${styles.picker} ${styles.changePicker}`}>
               <Select
                 ariaLabel="Change"
                 placeholder="Select a change…"
                 value={view.changeKey}
-                options={changeOptions(view.changes)}
+                options={changeItems(view)}
                 disabled={view.changes === null || view.changes.kind !== 'ok' || view.changes.changes.length === 0}
                 onChange={(value) => view.selectChange(value)}
               />
             </div>
           ) : null}
+          {view.tab === 'changes' && hasArchived(view.changes) ? (
+            <div className={styles.archivedToggle}>
+              <Checkbox
+                checked={view.showArchived}
+                label="Show archived"
+                ariaLabel="Show archived changes"
+                onChange={() => view.toggleArchived()}
+              />
+            </div>
+          ) : null}
           {view.projectPath !== '' ? (
-            <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+            <div className={styles.workspaceTabs}>
+              <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+            </div>
           ) : null}
         </div>
 
         <div className={styles.appbarRight}>
-          {selectedChange ? (
-            <Badge tone={selectedChange.status === 'archived' ? 'muted' : 'primary'}>
-              {selectedChange.status === 'archived' ? 'Archived' : 'Active'}
-            </Badge>
+          {view.tab === 'changes' && selectedChange ? (
+            <div className={styles.statusBadge}>
+              <Badge tone={selectedChange.status === 'archived' ? 'muted' : 'primary'}>
+                {selectedChange.status === 'archived' ? 'Archived' : 'Active'}
+              </Badge>
+            </div>
           ) : null}
-          <IconButton ariaLabel="Toggle theme" onClick={() => view.toggleTheme()}>
-            {view.theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
-          </IconButton>
+          <div className={styles.themeToggle}>
+            <IconButton ariaLabel="Toggle theme" onClick={() => view.toggleTheme()}>
+              {view.theme === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
+            </IconButton>
+          </div>
         </div>
       </header>
 
       <main className={styles.body}>{renderBody(view)}</main>
     </div>
   );
+}
+
+function changeItems(view: ReturnType<typeof useChangeBrowser>) {
+  if (view.changes === null || view.changes.kind !== 'ok') {
+    return [];
+  }
+  return changePickerItems({
+    changes: view.changes.changes,
+    projectName: projectName(view.projects, view.projectPath),
+    showArchived: view.showArchived,
+    selectedKey: view.changeKey,
+  });
 }
 
 function message(text: string) {

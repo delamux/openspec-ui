@@ -74,7 +74,8 @@ export function renderMarkdown(source: string): string {
       const bodyHtml = rows
         .map((row) => '<tr>' + row.map((cell) => `<td>${inlineMarkdown(cell)}</td>`).join('') + '</tr>')
         .join('');
-      out.push(`<table><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`);
+      // A table cannot scroll itself, so a wide one gets a block wrapper the CSS lets scroll sideways.
+      out.push(`<div class="tableWrap"><table><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`);
       continue;
     }
 
