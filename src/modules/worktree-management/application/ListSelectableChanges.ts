@@ -2,6 +2,7 @@ import { Maybe } from '../../../shared/domain/Maybe';
 import type { Change, ChangeStatus } from '../../change-viewer/domain/Change';
 import type { ChangeRepository } from '../../change-viewer/domain/repositories/ChangeRepository';
 import { progress, type Progress } from '../../change-viewer/domain/TaskList';
+import type { Worktree } from '../domain/Worktree';
 import type { WorktreeRepository } from '../domain/repositories/WorktreeRepository';
 
 export interface SelectableChange {
@@ -21,10 +22,8 @@ export class ListSelectableChanges {
   ) {}
 
   async execute(projectPath: string): Promise<SelectableChange[]> {
-    const candidates = [
-      ...(await this.mainCandidates(projectPath)),
-      ...(await this.worktreeCandidates(projectPath)),
-    ];
+    const main = await this.mainCandidates(projectPath);
+    const candidates = [...main, ...(await this.worktreeCandidates(projectPath, namesOf(main)))];
     const selectable = await Promise.all(candidates.map((candidate) => this.withProgress(candidate)));
     return archivedLast(selectable);
   }
@@ -39,22 +38,24 @@ export class ListSelectableChanges {
     }));
   }
 
-  private async worktreeCandidates(projectPath: string): Promise<Candidate[]> {
+  private async worktreeCandidates(projectPath: string, mainNames: Set<string>): Promise<Candidate[]> {
     const worktrees = (await this.worktrees.list(projectPath)).filter((worktree) => !worktree.isMain);
-    const perWorktree = await Promise.all(worktrees.map((worktree) => this.candidatesIn(worktree.path)));
+    const perWorktree = await Promise.all(worktrees.map((worktree) => this.candidatesIn(worktree, mainNames)));
     return perWorktree.flat();
   }
 
-  private async candidatesIn(worktreePath: string): Promise<Candidate[]> {
-    const changes = await this.listSafely(worktreePath);
-    // Worktrees are for active work — skip archived (done) changes to keep the picker focused.
+  private async candidatesIn(worktree: Worktree, mainNames: Set<string>): Promise<Candidate[]> {
+    const changes = await this.listSafely(worktree.path);
+    // A worktree is a full checkout, so it contains every main change. Keep the
+    // change this worktree is for (the live copy) plus changes that exist only here.
     return changes
       .filter((change) => !change.isArchived())
+      .filter((change) => belongsInWorktreePicker(worktree, change.name, mainNames))
       .map((change) => ({
         name: change.name,
         status: change.status,
-        sourcePath: worktreePath,
-        worktreeName: Maybe.some(leafName(worktreePath)),
+        sourcePath: worktree.path,
+        worktreeName: Maybe.some(leafName(worktree.path)),
       }));
   }
 
@@ -86,6 +87,17 @@ function archivedLast(changes: SelectableChange[]): SelectableChange[] {
     ...changes.filter((change) => change.status !== 'archived'),
     ...changes.filter((change) => change.status === 'archived'),
   ];
+}
+
+function belongsInWorktreePicker(worktree: Worktree, name: string, mainNames: Set<string>): boolean {
+  if (worktree.changeName().fold(() => false, (own) => own === name)) {
+    return true;
+  }
+  return !mainNames.has(name);
+}
+
+function namesOf(candidates: Candidate[]): Set<string> {
+  return new Set(candidates.map((candidate) => candidate.name));
 }
 
 function leafName(path: string): string {

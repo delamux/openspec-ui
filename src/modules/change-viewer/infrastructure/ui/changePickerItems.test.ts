@@ -46,6 +46,43 @@ describe('changePickerItems', () => {
     expect(items[1].options.map((option) => option.value)).toEqual(['wt-a::add-auth', 'wt-a::other']);
   });
 
+  it('lists the worktree own change first, then the others alphabetically', () => {
+    const items = changePickerItems({
+      changes: [
+        change({ key: 'wt-a::zebra', name: 'zebra', label: 'zebra', worktreeName: 'wt-a' }),
+        change({ key: 'wt-a::add-auth', name: 'add-auth', label: 'add-auth', worktreeName: 'wt-a' }),
+        change({ key: 'wt-a::middle', name: 'middle', label: 'middle', worktreeName: 'wt-a' }),
+      ],
+      projectName: 'openspec-ui',
+      showArchived: false,
+      selectedKey: '',
+    });
+
+    expect(items.map((item) => item.label)).toEqual(['WT wt-a']);
+    expect(items[0].options.map((option) => option.value)).toEqual([
+      'wt-a::add-auth',
+      'wt-a::middle',
+      'wt-a::zebra',
+    ]);
+  });
+
+  it('sorts worktree groups alphabetically and main changes alphabetically', () => {
+    const items = changePickerItems({
+      changes: [
+        change({ key: 'zebra', name: 'zebra', label: 'zebra' }),
+        change({ key: 'wt-b::new-idea', name: 'new-idea', worktreeName: 'wt-b' }),
+        change({ key: 'add-auth', name: 'add-auth', label: 'add-auth' }),
+        change({ key: 'wt-a::add-auth', name: 'add-auth', worktreeName: 'wt-a' }),
+      ],
+      projectName: 'openspec-ui',
+      showArchived: false,
+      selectedKey: '',
+    });
+
+    expect(items.map((item) => item.label)).toEqual(['openspec-ui', 'WT wt-a', 'WT wt-b']);
+    expect(items[0].options.map((option) => option.value)).toEqual(['add-auth', 'zebra']);
+  });
+
   it('hides the archived changes until they are asked for', () => {
     const changes = [
       change({ key: 'add-auth', name: 'add-auth' }),
@@ -74,6 +111,20 @@ describe('changePickerItems', () => {
 
     expect(items.map((item) => item.label)).toEqual(['p', 'Archived']);
     expect(items[1].options).toEqual([{ value: 'old-idea', label: 'old-idea' }]);
+  });
+
+  it('keeps archived changes in the order they arrived', () => {
+    const items = changePickerItems({
+      changes: [
+        change({ key: '2026-06-05-newer', name: '2026-06-05-newer', label: 'newer', status: 'archived' }),
+        change({ key: '2026-06-04-older', name: '2026-06-04-older', label: 'older', status: 'archived' }),
+      ],
+      projectName: 'p',
+      showArchived: true,
+      selectedKey: '',
+    });
+
+    expect(items[0].options.map((option) => option.value)).toEqual(['2026-06-05-newer', '2026-06-04-older']);
   });
 
   it('lists the archived group after every worktree group', () => {

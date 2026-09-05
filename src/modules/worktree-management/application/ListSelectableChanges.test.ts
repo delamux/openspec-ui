@@ -64,6 +64,50 @@ describe('ListSelectableChanges', () => {
     expect(result[1].worktreeName.getOrThrow()).toBe('add-auth');
   });
 
+  it('does not list a worktree copy of another main change under that worktree', async () => {
+    const changes = changesAt([
+      ['/p', [Change.create('add-auth', 'active'), Change.create('dispatch-booking-create', 'active')]],
+      [wtPath, [Change.create('add-auth', 'active'), Change.create('dispatch-booking-create', 'active')]],
+    ]);
+    const worktrees = new InMemoryWorktreeRepository(
+      new Map([['/p', [Worktree.create(wtPath, Maybe.some('change/add-auth'), false)]]]),
+    );
+
+    const result = await new ListSelectableChanges(changes, worktrees).execute('/p');
+
+    expect(result.map((c) => `${c.name}@${c.sourcePath}`)).toEqual([
+      'add-auth@/p',
+      'dispatch-booking-create@/p',
+      `add-auth@${wtPath}`,
+    ]);
+  });
+
+  it('still lists a change that only exists inside the worktree, even when that worktree also has copies of other main changes', async () => {
+    const changes = changesAt([
+      ['/p', [Change.create('add-auth', 'active'), Change.create('dispatch-booking-create', 'active')]],
+      [
+        wtPath,
+        [
+          Change.create('add-auth', 'active'),
+          Change.create('dispatch-booking-create', 'active'),
+          Change.create('new-idea', 'active'),
+        ],
+      ],
+    ]);
+    const worktrees = new InMemoryWorktreeRepository(
+      new Map([['/p', [Worktree.create(wtPath, Maybe.some('change/add-auth'), false)]]]),
+    );
+
+    const result = await new ListSelectableChanges(changes, worktrees).execute('/p');
+
+    expect(result.map((c) => `${c.name}@${c.sourcePath}`)).toEqual([
+      'add-auth@/p',
+      'dispatch-booking-create@/p',
+      `add-auth@${wtPath}`,
+      `new-idea@${wtPath}`,
+    ]);
+  });
+
   it('includes the worktree copy of a change that also exists on main (so the live copy is selectable)', async () => {
     const changes = changesAt([
       ['/p', [Change.create('add-auth', 'active')]],
