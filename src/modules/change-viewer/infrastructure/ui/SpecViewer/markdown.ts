@@ -2,8 +2,15 @@
 // fenced code, blockquote, lists, and pipe tables. Ported from the design
 // prototype; returns an HTML string for a `.prose` container.
 
+import { highlightCode } from './highlightCode';
+
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderCodeBlock(source: string, language: string): string {
+  const languageAttr = language === '' ? '' : ` data-language="${escapeHtml(language)}"`;
+  return `<div class="codeBlock"${languageAttr}><pre><code>${highlightCode(source, language)}</code></pre></div>`;
 }
 
 function inlineMarkdown(value: string): string {
@@ -33,6 +40,7 @@ export function renderMarkdown(source: string): string {
     const line = lines[i];
 
     if (/^```/.test(line)) {
+      const language = line.slice(3).trim().split(/\s+/)[0]?.toLowerCase() ?? '';
       const buffer: string[] = [];
       i++;
       while (i < lines.length && !/^```/.test(lines[i])) {
@@ -40,7 +48,7 @@ export function renderMarkdown(source: string): string {
         i++;
       }
       i++;
-      out.push('<pre><code>' + escapeHtml(buffer.join('\n')) + '</code></pre>');
+      out.push(renderCodeBlock(buffer.join('\n'), language));
       continue;
     }
 

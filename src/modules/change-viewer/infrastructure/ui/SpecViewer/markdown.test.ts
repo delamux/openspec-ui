@@ -18,8 +18,28 @@ describe('renderMarkdown', () => {
   });
 
   it('renders fenced code blocks without inline formatting', () => {
-    expect(renderMarkdown('```\nconst x = 1;\n```')).toBe('<pre><code>const x = 1;</code></pre>');
+    const html = renderMarkdown('```\nconst **x** = 1;\n```');
+
+    expect(html).toContain('const **x** = 1;');
+    expect(html).not.toContain('<strong>');
+    expect(html).toContain('class="codeBlock"');
   });
+
+  it('highlights a labeled fenced code block', () => {
+    const html = renderMarkdown('```ts\nconst x = 1;\n```');
+
+    expect(html).toContain('data-language="ts"');
+    expect(html).toContain('hljs-keyword');
+    expect(html).toContain('class="codeBlock"');
+  });
+
+  it('escapes HTML inside an unlabeled fence', () => {
+    const html = renderMarkdown('```\n<script>alert(1)</script>\n```');
+
+    expect(html).toContain('&lt;script&gt;');
+    expect(html).not.toContain('<script>');
+  });
+
 
   it('renders blockquotes', () => {
     expect(renderMarkdown('> note here')).toBe('<blockquote><p>note here</p></blockquote>');
