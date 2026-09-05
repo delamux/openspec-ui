@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { actions } from 'astro:actions';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
 import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../application/dtos';
+import { matchSelectableChange, searchFromSelection, selectionFromSearch, type BrowserSelection } from './selectionUrl';
 
 export type ThemeMode = 'light' | 'dark';
 export type WorkspaceTab = 'changes' | 'worktrees';
@@ -54,19 +55,12 @@ function systemTheme(): ThemeMode {
   return 'light';
 }
 
-function syncUrl(projectPath: string, changeName: string): void {
+function syncUrl(selection: BrowserSelection): void {
   if (typeof window === 'undefined') {
     return;
   }
-  const params = new URLSearchParams();
-  if (projectPath) {
-    params.set('project', projectPath);
-  }
-  if (changeName) {
-    params.set('change', changeName);
-  }
-  const query = params.toString();
-  window.history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
+  const query = searchFromSelection(selection);
+  window.history.replaceState(null, '', query === '' ? window.location.pathname : query);
 }
 
 export function useChangeBrowser(): ChangeBrowserView {
@@ -96,7 +90,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     }));
   }
 
-  async function loadChanges(projectPath: string, preselect: string): Promise<void> {
+  async function loadChanges(projectPath: string, changeName: string, worktreeName: string): Promise<void> {
     setState((prev) => ({
       ...prev,
       changesLoading: true,
@@ -109,33 +103,31 @@ export function useChangeBrowser(): ChangeBrowserView {
     const response = await actions.listSelectableChanges({ projectPath });
     const changes: SelectableChangesResultDto = response.data ?? { kind: 'error', message: 'Failed to load changes' };
     setState((prev) => ({ ...prev, changes, changesLoading: false }));
-    if (preselect && changes.kind === 'ok') {
-      const match = changes.changes.find((change) => change.worktreeName === null && change.name === preselect);
-      if (match) {
+    if (changes.kind === 'ok') {
+      const match = matchSelectableChange(changes.changes, changeName, worktreeName);
+      if (match !== undefined) {
         await loadView(match.key, match.sourcePath, match.name);
       }
     }
   }
 
   async function init(): Promise<void> {
-    const params = new URLSearchParams(window.location.search);
-    const urlProject = params.get('project') ?? '';
-    const urlChange = params.get('change') ?? '';
+    const selection = selectionFromSearch(window.location.search);
     // Apply the system theme now (post-mount), so it never affects the first render.
-    setState((prev) => ({ ...prev, theme: systemTheme(), projectsLoading: true, projectPath: urlProject }));
+    setState((prev) => ({ ...prev, theme: systemTheme(), projectsLoading: true, projectPath: selection.projectPath }));
     const response = await actions.listProjects();
     const projects: DiscoveryResultDto = response.data ?? { kind: 'discovery-error', message: 'Failed to load projects' };
     setState((prev) => ({ ...prev, projects, projectsLoading: false }));
-    const known = projects.kind === 'ok' && projects.projects.some((project) => project.path === urlProject);
-    if (urlProject && known) {
-      await loadChanges(urlProject, urlChange);
+    const known = projects.kind === 'ok' && projects.projects.some((project) => project.path === selection.projectPath);
+    if (selection.projectPath && known) {
+      await loadChanges(selection.projectPath, selection.changeName, selection.worktreeName);
     }
   }
 
   async function selectProject(path: string): Promise<void> {
-    syncUrl(path, '');
+    syncUrl({ projectPath: path, changeName: '', worktreeName: '' });
     setState((prev) => ({ ...prev, projectPath: path }));
-    await loadChanges(path, '');
+    await loadChanges(path, '', '');
   }
 
   async function selectChange(key: string): Promise<void> {
@@ -147,8 +139,11 @@ export function useChangeBrowser(): ChangeBrowserView {
     if (selected === undefined) {
       return;
     }
-    // Only main changes are deep-linked; worktree changes load from their worktree path.
-    syncUrl(state.projectPath, selected.worktreeName === null ? selected.name : '');
+    syncUrl({
+      projectPath: state.projectPath,
+      changeName: selected.name,
+      worktreeName: selected.worktreeName ?? '',
+    });
     await loadView(selected.key, selected.sourcePath, selected.name);
   }
 
