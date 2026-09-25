@@ -5,7 +5,7 @@ import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../appl
 import { matchSelectableChange, searchFromSelection, selectionFromSearch, type BrowserSelection } from './selectionUrl';
 
 export type ThemeMode = 'light' | 'dark';
-export type WorkspaceTab = 'changes' | 'worktrees';
+export type WorkspaceTab = 'changes' | 'worktrees' | 'project';
 
 interface State {
   theme: ThemeMode;

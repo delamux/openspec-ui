@@ -108,7 +108,8 @@
   .appbar {
     gap: 10px 12px;
   }
-  .brandSub {
+  /* The brand row holds three workspace tabs and the toggle: logo only. */
+  .brandText {
     display: none;
   }
   .pickers,
@@ -132,6 +133,13 @@
   .workspaceTabs > * {
     margin-left: auto;
   }
+  .workspaceTabs button {
+    padding-inline: 8px;
+  }
+  .workspaceTabs button::after {
+    left: 6px;
+    right: 6px;
+  }
   .themeToggle {
     order: 3;
   }
@@ -149,12 +157,5 @@
   .statusBadge {
     order: 7;
     margin-left: auto;
-  }
-}
-
-/* Under 380px the brand row cannot hold the name, both tabs and the toggle: logo only. */
-@media (max-width: 379px) {
-  .brandText {
-    display: none;
   }
 }

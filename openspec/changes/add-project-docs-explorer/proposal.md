@@ -26,12 +26,12 @@ Non-goals:
 - `project-documents`: listing a project's documents grouped into sections, and reading one of them safely (only markdown files and the OpenSpec config, only inside the project folder).
 
 ### Modified Capabilities
-<!-- None: the Changes and Worktrees tabs keep their behavior. -->
+- `responsive-layout`: the phone app bar holds three workspace tabs, so the brand shows its logo only at ≤640px.
 
 ## Impact
 
 - New slice `src/modules/project-docs/` (domain, application, `infrastructure/fs`, `infrastructure/ui`).
 - `src/shared/infrastructure/factory.ts`: wires `FileSystemProjectDocumentRepository` and the two use cases.
 - `src/actions/`: `listProjectDocuments` and `readProjectDocument` Actions and handlers.
-- `ChangeBrowser.tsx` / `.hook.ts`: third workspace tab. `SpecViewer/markdown.ts` exports its code-block renderer so the YAML viewer can reuse it.
+- `ChangeBrowser.tsx` / `.hook.ts` / `.module.css`: third workspace tab; on phones the brand shows its logo only so the three tabs fit. `SpecViewer/markdown.ts` exports its code-block renderer so the YAML viewer can reuse it.
 - **No new dependencies. No breaking changes.**

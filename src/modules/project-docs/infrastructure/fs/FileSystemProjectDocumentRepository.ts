@@ -1,6 +1,6 @@
 import { readdir, readFile, realpath } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, sep } from 'node:path';
 import { Maybe } from '../../../../shared/domain/Maybe';
 import { DomainError } from '../../../../shared/domain/DomainError';
 import { DocumentPath, OPENSPEC_CONFIG } from '../../domain/DocumentPath';

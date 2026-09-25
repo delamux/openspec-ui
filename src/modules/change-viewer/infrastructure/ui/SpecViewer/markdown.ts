@@ -8,7 +8,7 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function renderCodeBlock(source: string, language: string): string {
+export function renderCodeBlock(source: string, language: string): string {
   const languageAttr = language === '' ? '' : ` data-language="${escapeHtml(language)}"`;
   return `<div class="codeBlock"${languageAttr}><pre><code>${highlightCode(source, language)}</code></pre></div>`;
 }

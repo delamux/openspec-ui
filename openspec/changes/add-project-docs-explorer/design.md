@@ -31,7 +31,7 @@ The adapter walks the project with `readdir(..., { withFileTypes: true })`. It d
 Skills start with a YAML front matter block (`---` … `---`). The markdown renderer would read it as a horizontal rule followed by paragraphs. A small pure helper, `splitFrontMatter`, separates it, and the viewer shows it as a highlighted YAML block above the body. This is presentation only, so it lives in `infrastructure/ui` next to its test.
 
 ### 6. The tree is built in the UI from flat paths
-The Action returns flat paths per section. `buildDocumentTree` turns one section's paths into nested folders and files. It is a pure function with its own test. Directory nodes are open by default. The tree is small, so it is rendered in full with no virtualisation.
+The Action returns flat paths per section. `buildDocumentTree` turns one section's paths into nested folders and files. It is a pure function with its own test. Folders come before files at each level, as in a file explorer; the listing order (README first) still decides the default document. Directory nodes are open by default. The tree is small, so it is rendered in full with no virtualisation.
 
 ## Risks / Trade-offs
 
