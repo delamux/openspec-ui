@@ -33,13 +33,13 @@ The system SHALL return the content of a listed document given its path relative
 - **WHEN** a client asks for `docs/missing.md` and no such file exists
 - **THEN** the request fails with a not-found error
 
-### Requirement: Browse documents in a Project tab
+### Requirement: Browse documents in a Project information tab
 
-Once a project is selected, the system SHALL offer a Project workspace tab with a sidebar showing each non-empty section as a folder tree and a viewer showing the selected document. Markdown SHALL be rendered, YAML front matter SHALL be shown as a highlighted YAML block above the body, and `config.yaml` SHALL be shown as a highlighted YAML block. The tab SHALL open on `openspec/config.yaml`, or on the root README when there is no config. The tab is read-only.
+Once a project is selected, the system SHALL offer a "Project information" workspace tab with a sidebar showing each non-empty section as a folder tree and a viewer showing the selected document. Markdown SHALL be rendered, YAML front matter SHALL be shown as a highlighted YAML block above the body, and `config.yaml` SHALL be shown as a highlighted YAML block. The tab SHALL open on `openspec/config.yaml`, or on the root README when there is no config. The tab is read-only.
 
-#### Scenario: Opening the Project tab
+#### Scenario: Opening the Project information tab
 
-- **WHEN** the user selects a project that has `openspec/config.yaml` and opens the Project tab
+- **WHEN** the user selects a project that has `openspec/config.yaml` and opens the Project information tab
 - **THEN** the sidebar shows the sections and the viewer shows the config as highlighted YAML
 
 #### Scenario: Viewing a skill with front matter

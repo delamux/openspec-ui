@@ -4,7 +4,7 @@ Once a project is selected, openspec-ui only shows its changes and worktrees. Th
 
 ## What Changes
 
-- **New "Project" workspace tab** next to Changes and Worktrees, shown once a project is selected.
+- **New "Project information" workspace tab** next to Changes and Worktrees, shown once a project is selected.
 - **Document explorer.** A sidebar lists the project's documents as a folder tree, grouped into four sections:
   - **Config**: `openspec/config.yaml`.
   - **Agents & skills**: everything under `.claude/`, `.agents/`, `agents/` and `.github/`, plus `CLAUDE.md` and `AGENTS.md` anywhere.
@@ -26,12 +26,12 @@ Non-goals:
 - `project-documents`: listing a project's documents grouped into sections, and reading one of them safely (only markdown files and the OpenSpec config, only inside the project folder).
 
 ### Modified Capabilities
-- `responsive-layout`: the phone app bar holds three workspace tabs, so the brand shows its logo only at ≤640px.
+- `responsive-layout`: at ≤640px the workspace tabs (now three, one with a longer label) take their own full-width row under the brand instead of sharing the brand row.
 
 ## Impact
 
 - New slice `src/modules/project-docs/` (domain, application, `infrastructure/fs`, `infrastructure/ui`).
 - `src/shared/infrastructure/factory.ts`: wires `FileSystemProjectDocumentRepository` and the two use cases.
 - `src/actions/`: `listProjectDocuments` and `readProjectDocument` Actions and handlers.
-- `ChangeBrowser.tsx` / `.hook.ts` / `.module.css`: third workspace tab; on phones the brand shows its logo only so the three tabs fit. `SpecViewer/markdown.ts` exports its code-block renderer so the YAML viewer can reuse it.
+- `ChangeBrowser.tsx` / `.hook.ts` / `.module.css`: third workspace tab; on phones the workspace tabs move to their own row under the brand so the three tabs fit. `SpecViewer/markdown.ts` exports its code-block renderer so the YAML viewer can reuse it.
 - **No new dependencies. No breaking changes.**

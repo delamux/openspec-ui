@@ -108,8 +108,7 @@
   .appbar {
     gap: 10px 12px;
   }
-  /* The brand row holds three workspace tabs and the toggle: logo only. */
-  .brandText {
+  .brandSub {
     display: none;
   }
   .pickers,
@@ -119,29 +118,27 @@
   .brand {
     order: 1;
   }
-  /* A zero flex-basis keeps the tab strip from ever forcing the toggle onto a new row:
-     it takes what the brand and toggle leave and scrolls if that is too little. */
-  .workspaceTabs {
+  .themeToggle {
     order: 2;
-    flex: 1 1 0;
+    margin-left: auto;
+  }
+  /* The workspace tabs get their own full-width row under the brand; the strip
+     scrolls rather than wrapping if a very narrow screen cannot hold it. */
+  .workspaceTabs {
+    order: 3;
+    flex-basis: 100%;
     min-width: 0;
     display: flex;
     overflow-x: auto;
     /* Room for the active-tab underline, which hangs 1px below the tab. */
     padding-bottom: 1px;
   }
-  .workspaceTabs > * {
-    margin-left: auto;
-  }
   .workspaceTabs button {
-    padding-inline: 8px;
+    padding-inline: 10px;
   }
   .workspaceTabs button::after {
-    left: 6px;
-    right: 6px;
-  }
-  .themeToggle {
-    order: 3;
+    left: 8px;
+    right: 8px;
   }
   .projectPicker {
     order: 4;

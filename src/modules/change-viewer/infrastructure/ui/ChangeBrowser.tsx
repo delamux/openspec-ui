@@ -21,7 +21,7 @@ import styles from './ChangeBrowser.module.css';
 const WORKSPACE_TABS: TabItem[] = [
   { id: 'changes', label: 'Changes' },
   { id: 'worktrees', label: 'Worktrees' },
-  { id: 'project', label: 'Project' },
+  { id: 'project', label: 'Project information' },
 ];
 
 function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {

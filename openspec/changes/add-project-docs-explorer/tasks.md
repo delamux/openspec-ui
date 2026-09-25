@@ -26,11 +26,11 @@
 - [x] 5.1 RED→GREEN `buildDocumentTree` (flat paths → nested folders, folders before files)
 - [x] 5.2 RED→GREEN `splitFrontMatter`
 - [x] 5.3 `ProjectPanel` (+ hook, CSS module): sidebar with sections and tree, viewer, default document, loading/error/empty states, stacked layout at ≤768px
-- [x] 5.4 Third workspace tab "Project" in `ChangeBrowser`
-- [x] 5.5 Phone app bar: logo-only brand and tighter tab padding so the three tabs fit at 360px (`responsive-layout` delta)
+- [x] 5.4 Third workspace tab "Project information" in `ChangeBrowser`
+- [x] 5.5 Phone app bar: workspace tabs on their own full-width row under the brand, tab labels never wrap, so the three tabs fit at 360px (`responsive-layout` delta)
 
 ## 6. Verification
 
 - [x] 6.1 `pnpm test` and `pnpm astro check` pass
-- [x] 6.2 Open the Project tab against a copy of this repository (plus a sample `.claude` skill) in a scripted Chromium at 1280, 390 and 360px: config renders as YAML, skill front matter as a YAML block, specs and READMEs render, no horizontal page scroll
+- [x] 6.2 Open the Project information tab against a copy of this repository (plus a sample `.claude` skill) in a scripted Chromium at 1280, 768, 390 and 360px: config renders as YAML, skill front matter as a YAML block, specs and READMEs render, no horizontal page scroll
 - [ ] 6.3 Decide with the Tech Lead whether `config.yaml` should become editable (follow-up change)
