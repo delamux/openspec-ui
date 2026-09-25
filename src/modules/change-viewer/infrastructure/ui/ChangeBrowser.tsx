@@ -11,7 +11,7 @@ import {
 import { changePickerItems } from './changePickerItems';
 import { useChangeBrowser, type WorkspaceTab } from './ChangeBrowser.hook';
 import { SpecViewer } from './SpecViewer/SpecViewer';
-import { IconSun, IconMoon } from './SpecViewer/icons';
+import { IconSun, IconMoon, IconInfo } from './SpecViewer/icons';
 import { WorktreePanel } from '../../../worktree-management/infrastructure/ui/WorktreePanel';
 import { ProjectPanel } from '../../../project-docs/infrastructure/ui/ProjectPanel';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
@@ -21,7 +21,7 @@ import styles from './ChangeBrowser.module.css';
 const WORKSPACE_TABS: TabItem[] = [
   { id: 'changes', label: 'Changes' },
   { id: 'worktrees', label: 'Worktrees' },
-  { id: 'project', label: 'Project information' },
+  { id: 'project', label: 'Project information', icon: <IconInfo size={15} />, highlighted: true },
 ];
 
 function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {

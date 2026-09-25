@@ -156,3 +156,13 @@
     margin-left: auto;
   }
 }
+
+/* Under 380px the tab row cannot hold the tab icons too; the highlight's colour and pill remain. */
+@media (max-width: 379px) {
+  .workspaceTabs button {
+    padding-inline: 7px;
+  }
+  .workspaceTabs button svg {
+    display: none;
+  }
+}

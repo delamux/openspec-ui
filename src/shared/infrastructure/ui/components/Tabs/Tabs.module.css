@@ -42,6 +42,24 @@
 .tab.tabActive::after {
   transform: scaleX(1);
 }
+/* A soft pill behind the label, drawn under the text via isolation so the
+   active underline (::after) keeps working. */
+.tabHighlighted {
+  isolation: isolate;
+  color: var(--primary);
+  font-weight: 600;
+}
+.tabHighlighted::before {
+  content: '';
+  position: absolute;
+  inset: 7px 4px;
+  z-index: -1;
+  border-radius: 8px;
+  background: var(--primary-soft);
+}
+.tabHighlighted:hover {
+  color: var(--primary);
+}
 
 @media (max-width: 768px) {
   .tab {
