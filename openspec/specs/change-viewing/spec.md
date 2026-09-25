@@ -26,6 +26,16 @@ The system SHALL parse the change's `tasks.md` into ordered task groups. Each gr
 - **WHEN** `tasks.md` contains `## 1. Setup` followed by `- [x] 1.1 Do thing` and `- [ ] 1.2 Other thing`
 - **THEN** the system returns a group "1. Setup" with task `1.1` (done) and task `1.2` (not done), preserving order
 
+#### Scenario: Content written under a task
+
+- **WHEN** a task line is followed by indented lines — a wrapped continuation of its text, or a fenced code block
+- **THEN** those lines are exposed as the task's details (dedented, `ui:comment` blocks excluded) and rendered as markdown under the task on the Tasks tab
+
+#### Scenario: Details travel with their task
+
+- **WHEN** a task with details is reordered, deleted, or a new task is added after it
+- **THEN** its indented lines and comment blocks move or are removed together with the task line, and a new task is inserted after them, never between a task and its details
+
 #### Scenario: Completion progress
 
 - **WHEN** a change's parsed tasks have a mix of done and not-done items

@@ -212,3 +212,69 @@ describe('applyTaskEdit — line endings', () => {
     expect(out).toBe('## 1. G\r\n- [x] 1.1 done\r\n');
   });
 });
+
+describe('applyTaskEdit — details under a task travel with it', () => {
+  const WITH_DETAILS = [
+    '## 7. Checks',
+    '',
+    '- [x] 7.1 First',
+    '      ```bash',
+    '      echo first',
+    '      ```',
+    '- [ ] 7.2 Second, with a line for',
+    '      what it showed.',
+    '  <!-- ui:comment author="A" at="t" -->',
+    '  note',
+    '  <!-- /ui:comment -->',
+    '',
+    '## 8. Close',
+    '',
+    '- [ ] 8.1 Last',
+    '',
+  ].join('\n');
+
+  it('moves the details (and comments) with a reordered task, dropping nothing', () => {
+    const out = applyTaskEdit(WITH_DETAILS, { kind: 'reorder', groupTitle: '7. Checks', orderedIds: ['7.2', '7.1'] });
+
+    expect(out).toBe(
+      [
+        '## 7. Checks',
+        '',
+        '- [ ] 7.1 Second, with a line for',
+        '      what it showed.',
+        '  <!-- ui:comment author="A" at="t" -->',
+        '  note',
+        '  <!-- /ui:comment -->',
+        '- [x] 7.2 First',
+        '      ```bash',
+        '      echo first',
+        '      ```',
+        '',
+        '## 8. Close',
+        '',
+        '- [ ] 8.1 Last',
+        '',
+      ].join('\n'),
+    );
+  });
+
+  it('deletes the details together with the task', () => {
+    const out = applyTaskEdit(WITH_DETAILS, { kind: 'delete', id: '7.1', expectedText: 'First' });
+
+    expect(out.split('\n').slice(0, 5)).toEqual(['## 7. Checks', '', '- [ ] 7.1 Second, with a line for', '      what it showed.', '  <!-- ui:comment author="A" at="t" -->']);
+    expect(out).not.toContain('echo first');
+  });
+
+  it('adds a new task after the last task’s details, not between the task and its details', () => {
+    const out = applyTaskEdit(WITH_DETAILS, { kind: 'add', groupTitle: '7. Checks', text: 'Third' });
+
+    expect(out.split('\n').slice(6, 12)).toEqual([
+      '- [ ] 7.2 Second, with a line for',
+      '      what it showed.',
+      '  <!-- ui:comment author="A" at="t" -->',
+      '  note',
+      '  <!-- /ui:comment -->',
+      '- [ ] 7.3 Third',
+    ]);
+  });
+});

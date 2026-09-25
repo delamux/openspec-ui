@@ -5,11 +5,11 @@ const list: TaskList = [
   {
     title: '1. A',
     items: [
-      { id: '1.1', text: 'one', done: true, comments: [] },
-      { id: '1.2', text: 'two', done: false, comments: [] },
+      { id: '1.1', text: 'one', done: true, comments: [], details: '' },
+      { id: '1.2', text: 'two', done: false, comments: [], details: '' },
     ],
   },
-  { title: '2. B', items: [{ id: '2.1', text: 'three', done: false, comments: [] }] },
+  { title: '2. B', items: [{ id: '2.1', text: 'three', done: false, comments: [], details: '' }] },
 ];
 
 describe('TaskList progress', () => {

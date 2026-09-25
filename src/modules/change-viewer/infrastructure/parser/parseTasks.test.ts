@@ -11,8 +11,8 @@ describe('parseTasks', () => {
       {
         title: '1. Setup',
         items: [
-          { id: '1.1', text: 'Do thing', done: true, comments: [] },
-          { id: '1.2', text: 'Other thing', done: false, comments: [] },
+          { id: '1.1', text: 'Do thing', done: true, comments: [], details: '' },
+          { id: '1.2', text: 'Other thing', done: false, comments: [], details: '' },
         ],
       },
     ]);
@@ -27,7 +27,7 @@ describe('parseTasks', () => {
   it('handles a task without a numeric id token', () => {
     const list = parseTasks('## 1. G\n- [ ] just text');
 
-    expect(list[0].items[0]).toEqual({ id: '', text: 'just text', done: false, comments: [] });
+    expect(list[0].items[0]).toEqual({ id: '', text: 'just text', done: false, comments: [], details: '' });
   });
 
   it('parses inline ui:comment blocks attached to the task above', () => {
@@ -86,19 +86,19 @@ describe('parseTasks', () => {
   it('normalizes CRLF line endings', () => {
     const list = parseTasks('## 1. G\r\n- [x] 1.1 done\r\n');
 
-    expect(list[0].items[0]).toEqual({ id: '1.1', text: 'done', done: true, comments: [] });
+    expect(list[0].items[0]).toEqual({ id: '1.1', text: 'done', done: true, comments: [], details: '' });
   });
 
   it('places a task before any heading into an untitled group', () => {
     const list = parseTasks('- [ ] orphan task');
 
-    expect(list).toEqual([{ title: '', items: [{ id: '', text: 'orphan task', done: false, comments: [] }] }]);
+    expect(list).toEqual([{ title: '', items: [{ id: '', text: 'orphan task', done: false, comments: [], details: '' }] }]);
   });
 
   it('treats an uppercase X as done and ignores unrecognized markers', () => {
     const list = parseTasks('## 1. G\n- [X] 1.1 done\n- [~] 1.2 weird');
 
-    expect(list[0].items).toEqual([{ id: '1.1', text: 'done', done: true, comments: [] }]);
+    expect(list[0].items).toEqual([{ id: '1.1', text: 'done', done: true, comments: [], details: '' }]);
   });
 
   it('reads unquoted comment attributes', () => {
@@ -117,5 +117,55 @@ describe('parseTasks', () => {
 
   it('exposes an empty comment list for a task without comments', () => {
     expect(parseTasks('## 1. G\n- [ ] 1.1 t')[0].items[0].comments).toEqual([]);
+  });
+
+  it('keeps the indented lines under a task as dedented details, code blocks included', () => {
+    const md = [
+      '## 7. Checks',
+      '',
+      '- [x] 7.10 No `Accept-Language` -> 200, identical bodies.',
+      '      ```bash',
+      '      diff <(j "$B/data/mealTypes") <(j "$M/data/mealTypes") && echo same',
+      '      ```',
+      '- [ ] 7.11 Next',
+    ].join('\n');
+
+    const [group] = parseTasks(md);
+
+    expect(group.items[0].details).toBe(
+      '```bash\ndiff <(j "$B/data/mealTypes") <(j "$M/data/mealTypes") && echo same\n```',
+    );
+    expect(group.items[1].details).toBe('');
+  });
+
+  it('keeps a wrapped continuation line as details', () => {
+    const md = [
+      '## 8. Close',
+      '',
+      '- [ ] 8.1 Mark the four rows as `migrated`, with a line for',
+      '      what the regression showed. Verify the rows in the same PR.',
+    ].join('\n');
+
+    expect(parseTasks(md)[0].items[0].details).toBe('what the regression showed. Verify the rows in the same PR.');
+  });
+
+  it('keeps blank lines inside details but not trailing ones, and leaves comment blocks out of them', () => {
+    const md = [
+      '## 1. G',
+      '- [ ] 1.1 Task',
+      '  first paragraph',
+      '',
+      '  second paragraph',
+      '  <!-- ui:comment author=luis -->',
+      '  a comment',
+      '  <!-- /ui:comment -->',
+      '',
+      'A top-level paragraph that is not part of the task.',
+    ].join('\n');
+
+    const task = parseTasks(md)[0].items[0];
+
+    expect(task.details).toBe('first paragraph\n\nsecond paragraph');
+    expect(task.comments.map((comment) => comment.text)).toEqual(['a comment']);
   });
 });

@@ -18,6 +18,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Avatar, Badge, Button, Checkbox, IconButton, Input } from '../../../../../shared/infrastructure/ui/components';
 import { IconComment, IconTrash, IconPlus, IconGrip } from './icons';
 import { initialsOf, relativeTime } from './commentFormat';
+import { renderMarkdown } from './markdown';
 import { useTaskEditor, type TaskEditorView } from './TasksView.hook';
 import type { TaskCommentDto, TaskDto, TaskGroupDto } from '../../../application/dtos';
 import styles from './TasksView.module.css';
@@ -66,7 +67,7 @@ function SortableSection(props: { group: TaskGroupDto; editor: TaskEditorView; n
   // the server write reloads. Without this, dnd-kit animates the item back to its old
   // slot before the async reload arrives, which reads as a "snap back".
   const [items, setItems] = useState<TaskDto[]>(props.group.items);
-  const signature = props.group.items.map((task) => `${task.id}:${task.text}:${task.done}:${task.comments.length}`).join('|');
+  const signature = props.group.items.map((task) => `${task.id}:${task.text}:${task.done}:${task.comments.length}:${task.details.length}`).join('|');
   useEffect(() => {
     setItems(props.group.items);
   }, [signature]);
@@ -178,6 +179,9 @@ function SortableTask(props: { task: TaskDto; editor: TaskEditorView; now: numbe
           )}
         </div>
       </div>
+      {task.details !== '' ? (
+        <div className={`prose ${styles.details}`} dangerouslySetInnerHTML={{ __html: renderMarkdown(task.details) }} />
+      ) : null}
       {task.comments.length > 0 ? (
         <div className={styles.thread}>{task.comments.map((comment, index) => renderComment(comment, index, props.now))}</div>
       ) : null}

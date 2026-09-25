@@ -71,7 +71,7 @@ function applyStructuralEdit(list: TaskList, edit: TaskEdit): TaskList {
       }
     }
     const id = groupNumber ? `${groupNumber[1]}.${maxIndex + 1}` : '';
-    group.items.push({ id, text, done: false, comments: [] });
+    group.items.push({ id, text, done: false, comments: [], details: '' });
     return groups;
   }
 

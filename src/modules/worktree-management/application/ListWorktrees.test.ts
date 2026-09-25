@@ -16,6 +16,7 @@ function detailWith(done: number, total: number): ChangeDetail {
     text: `task ${i + 1}`,
     done: i < done,
     comments: [],
+    details: '',
   }));
   return { proposal: Maybe.none(), design: Maybe.none(), specs: [], tasks: Maybe.some([{ title: '1. Work', items }]) };
 }

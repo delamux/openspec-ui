@@ -20,8 +20,8 @@ describe('change-viewer dtos', () => {
         {
           title: '1. G',
           items: [
-            { id: '1.1', text: 'a', done: true, comments: [] },
-            { id: '1.2', text: 'b', done: false, comments: [] },
+            { id: '1.1', text: 'a', done: true, comments: [], details: '' },
+            { id: '1.2', text: 'b', done: false, comments: [], details: '' },
           ],
         },
       ]),

@@ -9,6 +9,8 @@ export interface Task {
   text: string;
   done: boolean;
   comments: TaskComment[];
+  // Markdown written under the task line (wrapped text, code blocks), dedented; '' when none.
+  details: string;
 }
 
 export interface TaskGroup {

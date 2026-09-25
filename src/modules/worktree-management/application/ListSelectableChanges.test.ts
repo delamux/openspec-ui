@@ -26,6 +26,7 @@ function detailWithTasks(done: boolean[]): ChangeDetail {
           text: `task ${index + 1}`,
           done: isDone,
           comments: [],
+          details: '',
         })),
       },
     ]),

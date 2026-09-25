@@ -209,6 +209,21 @@
   border-color: var(--primary);
 }
 
+/* What the tasks.md holds under the task line (wrapped text, code blocks), aligned with the task text. */
+.task .details {
+  margin: -2px 10px 8px 47px;
+  min-width: 0;
+  font-size: 13.5px;
+}
+.task .details > :first-child {
+  margin-top: 0;
+}
+.task .details > :last-child {
+  margin-bottom: 0;
+}
+.taskDone .details {
+  color: var(--muted-foreground);
+}
 .thread {
   margin: 0 10px 8px 47px;
   padding: 12px 0 6px;
@@ -255,7 +270,8 @@
     flex-basis: 100%;
   }
   /* Indent the thread to the checkbox column (row padding + handle + gap), not past it. */
-  .thread {
+  .thread,
+  .task .details {
     margin-left: 39px;
   }
 }

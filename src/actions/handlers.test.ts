@@ -88,7 +88,7 @@ describe('action handlers', () => {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
       specs: [],
-      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
+      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [], details: '' }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
     const factory = buildFactory(repo);
@@ -104,7 +104,7 @@ describe('action handlers', () => {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
       specs: [],
-      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
+      tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [], details: '' }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
 

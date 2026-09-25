@@ -1,9 +1,9 @@
 import type { Task, TaskComment, TaskGroup, TaskList } from '../../domain/TaskList';
+import { commentCloseIndex, endOfTaskBlock, isCommentOpen } from './taskBlock';
 
 const HEADING = /^##\s+(.*\S)\s*$/;
 const TASK = /^- \[([ xX])\]\s+(.*\S)\s*$/;
 const COMMENT_OPEN = /^\s*<!--\s*ui:comment\b(.*?)-->\s*$/;
-const COMMENT_CLOSE = /^\s*<!--\s*\/ui:comment\s*-->\s*$/;
 
 function parseTaskBody(body: string): { id: string; text: string } {
   const withId = /^(\d+(?:\.\d+)*)\s+(.*)$/.exec(body);
@@ -17,6 +17,46 @@ function attribute(name: string, raw: string): string {
   }
   const bare = new RegExp(`${name}\\s*=\\s*(\\S+)`).exec(raw);
   return bare ? bare[1] : '';
+}
+
+function dedent(lines: string[]): string {
+  const indents = lines.filter((line) => line.trim() !== '').map((line) => /^[ \t]*/.exec(line)![0].length);
+  const common = indents.length === 0 ? 0 : Math.min(...indents);
+  return lines
+    .map((line) => line.slice(common).trimEnd())
+    .join('\n')
+    .replace(/^\n+|\n+$/g, '');
+}
+
+function commentFrom(lines: string[], open: number, close: number): TaskComment {
+  const attributes = COMMENT_OPEN.exec(lines[open])![1];
+  return {
+    author: attribute('author', attributes),
+    at: attribute('at', attributes),
+    text: lines
+      .slice(open + 1, close)
+      .map((line) => line.trim())
+      .join('\n')
+      .trim(),
+  };
+}
+
+// Splits the lines under a task into its ui:comment blocks and the markdown left around them.
+function readTaskBlock(lines: string[], from: number, to: number): { comments: TaskComment[]; details: string } {
+  const comments: TaskComment[] = [];
+  const detailLines: string[] = [];
+  let i = from;
+  while (i < to) {
+    const close = isCommentOpen(lines[i]) ? commentCloseIndex(lines, i) : -1;
+    if (close !== -1) {
+      comments.push(commentFrom(lines, i, close));
+      i = close + 1;
+      continue;
+    }
+    detailLines.push(lines[i]);
+    i += 1;
+  }
+  return { comments, details: dedent(detailLines) };
 }
 
 export function parseTasks(markdown: string): TaskList {
@@ -49,40 +89,25 @@ export function parseTasks(markdown: string): TaskList {
     const task = TASK.exec(line);
     if (task) {
       const body = parseTaskBody(task[2]);
-      currentTask = { id: body.id, text: body.text, done: task[1].toLowerCase() === 'x', comments: [] };
+      const blockEnd = endOfTaskBlock(lines, i);
+      const block = readTaskBlock(lines, i + 1, blockEnd);
+      currentTask = {
+        id: body.id,
+        text: body.text,
+        done: task[1].toLowerCase() === 'x',
+        comments: block.comments,
+        details: block.details,
+      };
       ensureGroup().items.push(currentTask);
-      i++;
+      i = blockEnd;
       continue;
     }
 
-    const open = COMMENT_OPEN.exec(line);
-    if (open && currentTask !== null) {
-      const buffer: string[] = [];
-      let scan = i + 1;
-      let closed = false;
-      while (scan < lines.length) {
-        if (COMMENT_CLOSE.test(lines[scan])) {
-          closed = true;
-          break;
-        }
-        // a heading, task, or new comment-open ends an unterminated block — never consume them
-        if (HEADING.test(lines[scan]) || TASK.test(lines[scan]) || COMMENT_OPEN.test(lines[scan])) {
-          break;
-        }
-        buffer.push(lines[scan].trim());
-        scan++;
-      }
-      if (closed) {
-        currentTask.comments.push({
-          author: attribute('author', open[1]),
-          at: attribute('at', open[1]),
-          text: buffer.join('\n').trim(),
-        });
-        i = scan + 1;
-      } else {
-        // malformed (no close) — drop the marker line, reprocess the rest normally
-        i++;
-      }
+    // A comment block separated from its task by top-level text still belongs to that task.
+    const close = isCommentOpen(line) ? commentCloseIndex(lines, i) : -1;
+    if (close !== -1 && currentTask !== null) {
+      currentTask.comments.push(commentFrom(lines, i, close));
+      i = close + 1;
       continue;
     }
 

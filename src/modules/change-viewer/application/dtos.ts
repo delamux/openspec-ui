@@ -18,6 +18,7 @@ export interface TaskDto {
   text: string;
   done: boolean;
   comments: TaskCommentDto[];
+  details: string;
 }
 
 export interface TaskGroupDto {

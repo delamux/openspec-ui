@@ -1,12 +1,11 @@
 import { DomainError } from '../../../../shared/domain/DomainError';
 import type { TaskEdit } from '../../domain/TaskEdit';
+import { endOfTaskBlock } from './taskBlock';
 
 export type { TaskEdit };
 
 const TASK = /^- \[[ xX]\]\s+.*\S\s*$/;
 const HEADING = /^##\s+\S/;
-const COMMENT_OPEN = /^\s*<!--\s*ui:comment\b.*?-->\s*$/;
-const COMMENT_CLOSE = /^\s*<!--\s*\/ui:comment\s*-->\s*$/;
 
 interface ParsedLine {
   id: string;
@@ -43,30 +42,6 @@ function locate(lines: string[], id: string, expectedText: string): number {
   throw DomainError.createNotFound(`Task not found: ${id}`);
 }
 
-// Index just past a task's trailing ui:comment block(s); leaves an unterminated block in place.
-function endOfCommentBlock(lines: string[], from: number): number {
-  let end = from;
-  while (end < lines.length && COMMENT_OPEN.test(lines[end])) {
-    let scan = end + 1;
-    let closed = false;
-    while (scan < lines.length) {
-      if (COMMENT_CLOSE.test(lines[scan])) {
-        closed = true;
-        break;
-      }
-      if (TASK.test(lines[scan]) || HEADING.test(lines[scan])) {
-        break;
-      }
-      scan++;
-    }
-    if (!closed) {
-      break;
-    }
-    end = scan + 1;
-  }
-  return end;
-}
-
 export function applyTaskEdit(raw: string, edit: TaskEdit): string {
   const eol = raw.includes('\r\n') ? '\r\n' : '\n';
   const lines = raw.split(/\r?\n/);
@@ -100,9 +75,9 @@ export function applyTaskEdit(raw: string, edit: TaskEdit): string {
     return lines.join(eol);
   }
 
-  // delete: remove the task line and its attached comment block(s), then renumber the section
+  // delete: remove the task line with its details and comment block(s), then renumber the section
   const headingIndex = sectionHeadingIndexFor(lines, index);
-  const blockEnd = endOfCommentBlock(lines, index + 1);
+  const blockEnd = endOfTaskBlock(lines, index);
   lines.splice(index, blockEnd - index);
   if (headingIndex >= 0) {
     renumberSection(lines, headingIndex);
@@ -183,7 +158,7 @@ function reorderSection(lines: string[], groupTitle: string, orderedIds: string[
       firstTask = i;
     }
     const parsed = parseTaskLine(lines[i]);
-    const blockEnd = Math.min(endOfCommentBlock(lines, i + 1), end);
+    const blockEnd = Math.min(endOfTaskBlock(lines, i), end);
     blocks.push({ id: parsed ? parsed.id : '', lines: lines.slice(i, blockEnd) });
     regionEnd = blockEnd;
     i = blockEnd;
@@ -254,6 +229,6 @@ function insertTaskInGroup(lines: string[], groupTitle: string, rawText: string)
 
   const id = groupNumber ? `${groupNumber[1]}.${maxIndex + 1}` : '';
   const line = id ? `- [ ] ${id} ${text}` : `- [ ] ${text}`;
-  const insertAt = lastTask >= 0 ? endOfCommentBlock(lines, lastTask + 1) : headingIndex + 1;
+  const insertAt = lastTask >= 0 ? endOfTaskBlock(lines, lastTask) : headingIndex + 1;
   lines.splice(insertAt, 0, line);
 }

@@ -14,7 +14,7 @@ function repoWith(items: { id: string; text: string; done: boolean }[]) {
     proposal: Maybe.none<string>(),
     design: Maybe.none<string>(),
     specs: [],
-    tasks: Maybe.some([{ title: '1. G', items: items.map((i) => ({ ...i, comments: [] })) }]),
+    tasks: Maybe.some([{ title: '1. G', items: items.map((i) => ({ ...i, comments: [], details: '' })) }]),
   };
   return new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
 }
