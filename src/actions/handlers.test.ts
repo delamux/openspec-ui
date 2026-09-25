@@ -61,14 +61,25 @@ describe('action handlers', () => {
   });
 
   it('loadChangeHandler returns a view dto', async () => {
-    const detail: ChangeDetail = { proposal: Maybe.some('# Why'), design: Maybe.none<string>(), tasks: Maybe.none() };
+    const detail: ChangeDetail = {
+      proposal: Maybe.some('# Why'),
+      design: Maybe.none<string>(),
+      specs: [{ capability: 'auth', content: '## ADDED Requirements' }],
+      tasks: Maybe.none(),
+    };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/root/app::add-auth', detail]]));
 
     const result = await loadChangeHandler(buildFactory(repo), { projectPath: '/root/app', changeName: 'add-auth' });
 
     expect(result).toEqual({
       kind: 'ok',
-      view: { proposal: '# Why', design: null, tasks: null, progress: { done: 0, total: 0, pct: 0 } },
+      view: {
+        proposal: '# Why',
+        design: null,
+        specs: [{ capability: 'auth', content: '## ADDED Requirements' }],
+        tasks: null,
+        progress: { done: 0, total: 0, pct: 0 },
+      },
     });
   });
 
@@ -76,6 +87,7 @@ describe('action handlers', () => {
     const detail: ChangeDetail = {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
@@ -91,6 +103,7 @@ describe('action handlers', () => {
     const detail: ChangeDetail = {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));

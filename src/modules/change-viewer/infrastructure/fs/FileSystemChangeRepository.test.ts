@@ -62,6 +62,28 @@ describe('FileSystemChangeRepository', () => {
     expect(detail.tasks.getOrThrow()[0].items.map((t) => t.done)).toEqual([true, false]);
   });
 
+  it('loads the delta specs sorted by capability, skipping folders without a spec.md', async () => {
+    const dir = await makeChange(project, 'add-auth');
+    await mkdir(join(dir, 'specs', 'session'), { recursive: true });
+    await writeFile(join(dir, 'specs', 'session', 'spec.md'), '## ADDED Requirements\n', 'utf8');
+    await mkdir(join(dir, 'specs', 'auth'), { recursive: true });
+    await writeFile(join(dir, 'specs', 'auth', 'spec.md'), '## MODIFIED Requirements\n', 'utf8');
+    await mkdir(join(dir, 'specs', 'empty'), { recursive: true });
+
+    const detail = await repository.loadChange(project, 'add-auth');
+
+    expect(detail.specs).toEqual([
+      { capability: 'auth', content: '## MODIFIED Requirements\n' },
+      { capability: 'session', content: '## ADDED Requirements\n' },
+    ]);
+  });
+
+  it('loads no specs when the change has no specs folder', async () => {
+    await makeChange(project, 'add-auth');
+
+    expect((await repository.loadChange(project, 'add-auth')).specs).toEqual([]);
+  });
+
   it('resolves an archived change by name', async () => {
     await makeChange(project, '2026-01-01-old', true);
 

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Maybe } from '../../../../shared/domain/Maybe';
 import { DomainError } from '../../../../shared/domain/DomainError';
 import { Change } from '../../domain/Change';
-import type { ChangeDetail } from '../../domain/ChangeDetail';
+import type { ChangeDetail, ChangeSpec } from '../../domain/ChangeDetail';
 import type { ChangeRepository } from '../../domain/repositories/ChangeRepository';
 import type { TaskEdit } from '../../domain/TaskEdit';
 import { parseTasks } from '../parser/parseTasks';
@@ -12,6 +12,8 @@ import { applyTaskEdit } from '../parser/applyTaskEdit';
 const PROPOSAL = 'proposal.md';
 const DESIGN = 'design.md';
 const TASKS = 'tasks.md';
+const SPECS = 'specs';
+const SPEC = 'spec.md';
 const ARCHIVE = 'archive';
 
 export class FileSystemChangeRepository implements ChangeRepository {
@@ -31,6 +33,7 @@ export class FileSystemChangeRepository implements ChangeRepository {
     return {
       proposal: await readFileMaybe(join(dir, PROPOSAL)),
       design: await readFileMaybe(join(dir, DESIGN)),
+      specs: await this.readSpecs(join(dir, SPECS)),
       tasks: tasks.map(parseTasks),
     };
   }
@@ -46,6 +49,16 @@ export class FileSystemChangeRepository implements ChangeRepository {
       (value) => value,
     );
     await writeFile(path, applyTaskEdit(raw, edit), 'utf8');
+  }
+
+  private async readSpecs(specsDir: string): Promise<ChangeSpec[]> {
+    const capabilities = await directoryNamesIn(specsDir);
+    const specs = await Promise.all(
+      [...capabilities].sort().map(async (capability) =>
+        (await readFileMaybe(join(specsDir, capability, SPEC))).map((content) => ({ capability, content })),
+      ),
+    );
+    return specs.flatMap((spec) => spec.fold<ChangeSpec[]>(() => [], (value) => [value]));
   }
 
   private async changeNamesIn(dir: string, exclude: string[]): Promise<string[]> {
@@ -86,6 +99,18 @@ async function readFileMaybe(path: string): Promise<Maybe<string>> {
       return Maybe.none();
     }
     throw DomainError.create(`Could not read file: "${path}"`);
+  }
+}
+
+async function directoryNamesIn(dir: string): Promise<string[]> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  } catch (error) {
+    if (isFileNotFound(error)) {
+      return [];
+    }
+    throw DomainError.create(`Could not read directory: "${dir}"`);
   }
 }
 

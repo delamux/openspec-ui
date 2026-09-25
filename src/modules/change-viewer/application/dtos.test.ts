@@ -15,6 +15,7 @@ describe('change-viewer dtos', () => {
     const dto = toChangeViewDto({
       proposal: Maybe.some('# Why'),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([
         {
           title: '1. G',
@@ -33,8 +34,19 @@ describe('change-viewer dtos', () => {
   });
 
   it('maps an empty detail to nulls and zero progress', () => {
-    const dto = toChangeViewDto({ proposal: Maybe.none(), design: Maybe.none(), tasks: Maybe.none() });
+    const dto = toChangeViewDto({ proposal: Maybe.none(), design: Maybe.none(), specs: [], tasks: Maybe.none() });
 
-    expect(dto).toEqual({ proposal: null, design: null, tasks: null, progress: { done: 0, total: 0, pct: 0 } });
+    expect(dto).toEqual({ proposal: null, design: null, specs: [], tasks: null, progress: { done: 0, total: 0, pct: 0 } });
+  });
+
+  it('maps the delta specs', () => {
+    const dto = toChangeViewDto({
+      proposal: Maybe.none(),
+      design: Maybe.none(),
+      specs: [{ capability: 'auth', content: '## ADDED Requirements' }],
+      tasks: Maybe.none(),
+    });
+
+    expect(dto.specs).toEqual([{ capability: 'auth', content: '## ADDED Requirements' }]);
   });
 });

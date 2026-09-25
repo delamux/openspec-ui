@@ -29,8 +29,16 @@
 - [x] 5.4 Third workspace tab "Project information" in `ChangeBrowser`
 - [x] 5.5 Phone app bar: workspace tabs on their own full-width row under the brand, tab labels never wrap, so the three tabs fit at 360px (`responsive-layout` delta)
 
-## 6. Verification
+## 6. Highlight and change specs
 
-- [x] 6.1 `pnpm test` and `pnpm astro check` pass
-- [x] 6.2 Open the Project information tab against a copy of this repository (plus a sample `.claude` skill) in a scripted Chromium at 1280, 768, 390 and 360px: config renders as YAML, skill front matter as a YAML block, specs and READMEs render, no horizontal page scroll
-- [ ] 6.3 Decide with the Tech Lead whether `config.yaml` should become editable (follow-up change)
+- [x] 6.1 `Tabs` primitive: optional `highlighted` flag (primary colour, soft pill); the Project information tab uses it with an info icon; icons hidden and padding tightened under 380px so the three tabs still fit
+- [x] 6.2 RED→GREEN `FileSystemChangeRepository.loadChange` reads `specs/<capability>/spec.md`, sorted, skipping folders without a spec, empty without a `specs/` folder
+- [x] 6.3 RED→GREEN `toChangeViewDto` carries the specs; handler test covers the wiring
+- [x] 6.4 `SpecViewer` Specs tab between Proposal and Design, capability picker when there is more than one spec, empty state otherwise
+
+## 7. Verification
+
+- [x] 7.1 `pnpm test` and `pnpm astro check` pass
+- [x] 7.2 Open the Project information tab against a copy of this repository (plus a sample `.claude` skill) in a scripted Chromium at 1280, 768, 390 and 360px: config renders as YAML, skill front matter as a YAML block, specs and READMEs render, no horizontal page scroll
+- [x] 7.3 Open this change's Specs tab in a scripted Chromium and switch between its two capabilities
+- [ ] 7.4 Decide with the Tech Lead whether `config.yaml` should become editable (follow-up change)

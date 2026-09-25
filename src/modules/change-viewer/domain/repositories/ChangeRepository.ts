@@ -14,6 +14,7 @@ export interface ChangeRepository {
 const emptyDetail: ChangeDetail = {
   proposal: Maybe.none<string>(),
   design: Maybe.none<string>(),
+  specs: [],
   tasks: Maybe.none(),
 };
 
