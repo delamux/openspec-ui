@@ -25,9 +25,15 @@ export interface TaskGroupDto {
   items: TaskDto[];
 }
 
+export interface ChangeSpecDto {
+  capability: string;
+  content: string;
+}
+
 export interface ChangeViewDto {
   proposal: string | null;
   design: string | null;
+  specs: ChangeSpecDto[];
   tasks: TaskGroupDto[] | null;
   progress: { done: number; total: number; pct: number };
 }
@@ -80,6 +86,7 @@ export function toChangeViewDto(detail: ChangeDetail): ChangeViewDto {
       () => null,
       (value) => value,
     ),
+    specs: detail.specs.map((spec) => ({ capability: spec.capability, content: spec.content })),
     tasks,
     progress: progress(tasks ?? []),
   };

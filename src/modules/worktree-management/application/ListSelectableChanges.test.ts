@@ -17,6 +17,7 @@ function detailWithTasks(done: boolean[]): ChangeDetail {
   return {
     proposal: Maybe.none<string>(),
     design: Maybe.none<string>(),
+    specs: [],
     tasks: Maybe.some([
       {
         title: '1. Group',

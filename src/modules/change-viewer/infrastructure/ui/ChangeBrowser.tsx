@@ -9,10 +9,11 @@ import {
   type TabItem,
 } from '../../../../shared/infrastructure/ui/components';
 import { changePickerItems } from './changePickerItems';
-import { useChangeBrowser } from './ChangeBrowser.hook';
+import { useChangeBrowser, type WorkspaceTab } from './ChangeBrowser.hook';
 import { SpecViewer } from './SpecViewer/SpecViewer';
-import { IconSun, IconMoon } from './SpecViewer/icons';
+import { IconSun, IconMoon, IconInfo } from './SpecViewer/icons';
 import { WorktreePanel } from '../../../worktree-management/infrastructure/ui/WorktreePanel';
+import { ProjectPanel } from '../../../project-docs/infrastructure/ui/ProjectPanel';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
 import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../application/dtos';
 import styles from './ChangeBrowser.module.css';
@@ -20,6 +21,7 @@ import styles from './ChangeBrowser.module.css';
 const WORKSPACE_TABS: TabItem[] = [
   { id: 'changes', label: 'Changes' },
   { id: 'worktrees', label: 'Worktrees' },
+  { id: 'project', label: 'Project information', icon: <IconInfo size={15} />, highlighted: true },
 ];
 
 function projectOptions(projects: DiscoveryResultDto | null): SelectOption[] {
@@ -111,7 +113,7 @@ export function ChangeBrowser() {
           ) : null}
           {view.projectPath !== '' ? (
             <div className={styles.workspaceTabs}>
-              <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as 'changes' | 'worktrees')} />
+              <Tabs items={WORKSPACE_TABS} active={view.tab} onSelect={(id) => view.setTab(id as WorkspaceTab)} />
             </div>
           ) : null}
         </div>
@@ -168,6 +170,9 @@ function renderBody(view: ReturnType<typeof useChangeBrowser>) {
   }
   if (view.tab === 'worktrees') {
     return <WorktreePanel projectPath={view.projectPath} />;
+  }
+  if (view.tab === 'project') {
+    return <ProjectPanel projectPath={view.projectPath} />;
   }
   if (view.changesLoading || view.changes === null) {
     return message('Loading changes…');

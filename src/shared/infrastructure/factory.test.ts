@@ -9,11 +9,14 @@ import { ProjectsRoot } from '../../modules/project-discovery/domain/ProjectsRoo
 import { Project } from '../../modules/project-discovery/domain/Project';
 import { InMemoryChangeRepository } from '../../modules/change-viewer/domain/repositories/ChangeRepository';
 import { Change } from '../../modules/change-viewer/domain/Change';
+import { ListProjectDocuments } from '../../modules/project-docs/application/ListProjectDocuments';
+import { ReadProjectDocument } from '../../modules/project-docs/application/ReadProjectDocument';
 import { ListWorktrees } from '../../modules/worktree-management/application/ListWorktrees';
 import { InMemoryWorktreeRepository } from '../../modules/worktree-management/domain/repositories/WorktreeRepository';
 import { InMemoryAgentActivityProvider } from '../../modules/worktree-management/domain/repositories/AgentActivityProvider';
 import { InMemoryAgentTaskScaffolder } from '../../modules/worktree-management/application/ports/AgentTaskScaffolder';
 import { InMemoryEditorLauncher } from '../../modules/worktree-management/application/ports/EditorLauncher';
+import { InMemoryProjectDocumentRepository } from '../../modules/project-docs/domain/repositories/ProjectDocumentRepository';
 
 describe('Factory', () => {
   it('builds the use cases from the environment', () => {
@@ -23,6 +26,8 @@ describe('Factory', () => {
     expect(factory.listChanges()).toBeInstanceOf(ListChanges);
     expect(factory.loadChange()).toBeInstanceOf(LoadChange);
     expect(factory.listWorktrees()).toBeInstanceOf(ListWorktrees);
+    expect(factory.listProjectDocuments()).toBeInstanceOf(ListProjectDocuments);
+    expect(factory.readProjectDocument()).toBeInstanceOf(ReadProjectDocument);
   });
 
   it('wires injected in-memory dependencies end to end', async () => {
@@ -34,6 +39,7 @@ describe('Factory', () => {
       agentActivityProvider: new InMemoryAgentActivityProvider(),
       agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
       editorLauncher: new InMemoryEditorLauncher(),
+      documentRepository: new InMemoryProjectDocumentRepository(),
     });
 
     expect(await factory.discoverProjects().execute()).toEqual({

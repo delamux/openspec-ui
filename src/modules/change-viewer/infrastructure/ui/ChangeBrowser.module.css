@@ -118,22 +118,27 @@
   .brand {
     order: 1;
   }
-  /* A zero flex-basis keeps the tab strip from ever forcing the toggle onto a new row:
-     it takes what the brand and toggle leave and scrolls if that is too little. */
-  .workspaceTabs {
+  .themeToggle {
     order: 2;
-    flex: 1 1 0;
+    margin-left: auto;
+  }
+  /* The workspace tabs get their own full-width row under the brand; the strip
+     scrolls rather than wrapping if a very narrow screen cannot hold it. */
+  .workspaceTabs {
+    order: 3;
+    flex-basis: 100%;
     min-width: 0;
     display: flex;
     overflow-x: auto;
     /* Room for the active-tab underline, which hangs 1px below the tab. */
     padding-bottom: 1px;
   }
-  .workspaceTabs > * {
-    margin-left: auto;
+  .workspaceTabs button {
+    padding-inline: 10px;
   }
-  .themeToggle {
-    order: 3;
+  .workspaceTabs button::after {
+    left: 8px;
+    right: 8px;
   }
   .projectPicker {
     order: 4;
@@ -152,9 +157,12 @@
   }
 }
 
-/* Under 380px the brand row cannot hold the name, both tabs and the toggle: logo only. */
+/* Under 380px the tab row cannot hold the tab icons too; the highlight's colour and pill remain. */
 @media (max-width: 379px) {
-  .brandText {
+  .workspaceTabs button {
+    padding-inline: 7px;
+  }
+  .workspaceTabs button svg {
     display: none;
   }
 }

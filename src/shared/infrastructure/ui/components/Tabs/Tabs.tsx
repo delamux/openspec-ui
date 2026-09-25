@@ -5,6 +5,14 @@ export interface TabItem {
   id: string;
   label: string;
   icon?: ReactNode;
+  // Draws attention to a tab the user should not miss, even when it is not active.
+  highlighted?: boolean;
+}
+
+function tabClass(item: TabItem, isActive: boolean): string {
+  return [styles.tab, isActive ? styles.tabActive : '', item.highlighted ? styles.tabHighlighted : '']
+    .filter((name) => name !== '')
+    .join(' ');
 }
 
 interface TabsProps {
@@ -23,7 +31,7 @@ export function Tabs(props: TabsProps) {
             key={item.id}
             role="tab"
             aria-selected={isActive}
-            className={isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+            className={tabClass(item, isActive)}
             onClick={() => props.onSelect(item.id)}
           >
             {item.icon}

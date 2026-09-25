@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Tabs, type TabItem } from '../../../../../shared/infrastructure/ui/components';
 import { renderMarkdown } from './markdown';
 import { TasksView } from './TasksView';
-import { IconProposal, IconDesign, IconTasks } from './icons';
-import type { ChangeViewDto } from '../../../application/dtos';
+import { IconProposal, IconSpecs, IconDesign, IconTasks } from './icons';
+import type { ChangeSpecDto, ChangeViewDto } from '../../../application/dtos';
 import styles from './SpecViewer.module.css';
 
-type TabId = 'proposal' | 'design' | 'tasks';
+type TabId = 'proposal' | 'specs' | 'design' | 'tasks';
 
 const TABS: TabItem[] = [
   { id: 'proposal', label: 'Proposal', icon: <IconProposal size={16} /> },
+  { id: 'specs', label: 'Specs', icon: <IconSpecs size={16} /> },
   { id: 'design', label: 'Design', icon: <IconDesign size={16} /> },
   { id: 'tasks', label: 'Tasks', icon: <IconTasks size={16} /> },
 ];
@@ -29,6 +30,34 @@ function Empty(props: { label: string }) {
   return <p className={styles.empty}>{props.label}</p>;
 }
 
+// A change can carry one delta spec per capability; a picker appears only when there is more than one.
+function SpecsView(props: { specs: ChangeSpecDto[] }) {
+  const [selected, setSelected] = useState(props.specs[0]?.capability ?? '');
+  const current = props.specs.find((spec) => spec.capability === selected) ?? props.specs[0];
+  return (
+    <div className={styles.specs}>
+      {props.specs.length > 1 ? (
+        <div className={styles.capabilities} role="group" aria-label="Capability">
+          {props.specs.map((spec) => (
+            <button
+              key={spec.capability}
+              type="button"
+              className={`${styles.capability} ${spec.capability === current.capability ? styles.capabilityActive : ''}`}
+              aria-pressed={spec.capability === current.capability}
+              onClick={() => setSelected(spec.capability)}
+            >
+              {spec.capability}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className={styles.capabilityName}>{current.capability}</p>
+      )}
+      <Markdown source={current.content} />
+    </div>
+  );
+}
+
 export function SpecViewer(props: SpecViewerProps) {
   const [active, setActive] = useState<TabId>('proposal');
 
@@ -42,6 +71,11 @@ export function SpecViewer(props: SpecViewerProps) {
           ? props.view.proposal !== null
             ? <Markdown source={props.view.proposal} />
             : <Empty label="This change has no proposal." />
+          : null}
+        {active === 'specs'
+          ? props.view.specs.length > 0
+            ? <SpecsView key={props.changeName} specs={props.view.specs} />
+            : <Empty label="This change has no delta specs." />
           : null}
         {active === 'design'
           ? props.view.design !== null

@@ -21,7 +21,7 @@ describe('InMemoryChangeRepository', () => {
   });
 
   it('returns the seeded detail for a change', async () => {
-    const detail: ChangeDetail = { proposal: Maybe.some('# hi'), design: Maybe.none<string>(), tasks: Maybe.none() };
+    const detail: ChangeDetail = { proposal: Maybe.some('# hi'), design: Maybe.none<string>(), specs: [], tasks: Maybe.none() };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::a', detail]]));
 
     expect((await repo.loadChange('/p', 'a')).proposal.getOrThrow()).toBe('# hi');
@@ -38,6 +38,7 @@ describe('InMemoryChangeRepository', () => {
     const detail: ChangeDetail = {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));
@@ -51,6 +52,7 @@ describe('InMemoryChangeRepository', () => {
     const detail: ChangeDetail = {
       proposal: Maybe.none<string>(),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([{ title: '1. G', items: [{ id: '1.1', text: 'a', done: false, comments: [] }] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::c', detail]]));

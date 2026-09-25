@@ -17,7 +17,7 @@ function detailWith(done: number, total: number): ChangeDetail {
     done: i < done,
     comments: [],
   }));
-  return { proposal: Maybe.none(), design: Maybe.none(), tasks: Maybe.some([{ title: '1. Work', items }]) };
+  return { proposal: Maybe.none(), design: Maybe.none(), specs: [], tasks: Maybe.some([{ title: '1. Work', items }]) };
 }
 
 describe('ListWorktrees', () => {

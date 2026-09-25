@@ -50,6 +50,26 @@ export function IconDesign(props: IconProps) {
   );
 }
 
+export function IconSpecs(props: IconProps) {
+  return (
+    <Icon size={props.size}>
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+      <path d="M8 7h8" />
+      <path d="M8 11h6" />
+    </Icon>
+  );
+}
+
+export function IconInfo(props: IconProps) {
+  return (
+    <Icon size={props.size}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </Icon>
+  );
+}
+
 export function IconTasks(props: IconProps) {
   return (
     <Icon size={props.size}>

@@ -8,6 +8,7 @@ describe('LoadChange', () => {
     const detail = {
       proposal: Maybe.some('# Why'),
       design: Maybe.none<string>(),
+      specs: [],
       tasks: Maybe.some([{ title: '1. G', items: [] }]),
     };
     const repo = new InMemoryChangeRepository(new Map(), new Map([['/p::a', detail]]));
