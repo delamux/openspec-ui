@@ -21,6 +21,12 @@ import {
   type WorktreeRemoveResultDto,
   type WorktreeOpenResultDto,
 } from '../modules/worktree-management/application/dtos';
+import {
+  toProjectDocumentsDto,
+  toProjectDocumentDto,
+  type ProjectDocumentsResultDto,
+  type ProjectDocumentResultDto,
+} from '../modules/project-docs/application/dtos';
 import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
 
@@ -178,6 +184,28 @@ export async function openWorktreeHandler(
   }
 }
 
+export async function listProjectDocumentsHandler(
+  factory: Factory,
+  input: { projectPath: string },
+): Promise<ProjectDocumentsResultDto> {
+  try {
+    return toProjectDocumentsDto(await factory.listProjectDocuments().execute(input.projectPath));
+  } catch (error) {
+    return { kind: 'error', message: documentMessageFrom(error) };
+  }
+}
+
+export async function readProjectDocumentHandler(
+  factory: Factory,
+  input: { projectPath: string; path: string },
+): Promise<ProjectDocumentResultDto> {
+  try {
+    return toProjectDocumentDto(await factory.readProjectDocument().execute(input.projectPath, input.path));
+  } catch (error) {
+    return { kind: 'error', message: documentMessageFrom(error) };
+  }
+}
+
 function messageFrom(error: unknown): string {
   if (error instanceof DomainError) {
     // not-found / validation messages are safe (no filesystem paths); technical errors are generalized
@@ -192,4 +220,11 @@ function worktreeMessageFrom(error: unknown): string {
     return error.message;
   }
   return 'Something went wrong';
+}
+
+function documentMessageFrom(error: unknown): string {
+  if (error instanceof DomainError && (error.isNotFound() || error.isValidation())) {
+    return error.message;
+  }
+  return 'Could not read the project documents from disk';
 }

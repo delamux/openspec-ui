@@ -12,6 +12,7 @@ import { InMemoryWorktreeRepository } from '../modules/worktree-management/domai
 import { InMemoryAgentActivityProvider } from '../modules/worktree-management/domain/repositories/AgentActivityProvider';
 import { InMemoryAgentTaskScaffolder } from '../modules/worktree-management/application/ports/AgentTaskScaffolder';
 import { InMemoryEditorLauncher } from '../modules/worktree-management/application/ports/EditorLauncher';
+import { InMemoryProjectDocumentRepository } from '../modules/project-docs/domain/repositories/ProjectDocumentRepository';
 import { Maybe } from '../shared/domain/Maybe';
 import { DomainError } from '../shared/domain/DomainError';
 
@@ -24,6 +25,7 @@ function buildFactory(changeRepository: ChangeRepository = new InMemoryChangeRep
     agentActivityProvider: new InMemoryAgentActivityProvider(),
     agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
     editorLauncher: new InMemoryEditorLauncher(),
+    documentRepository: new InMemoryProjectDocumentRepository(),
   });
 }
 

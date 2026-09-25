@@ -17,6 +17,7 @@ import { InMemoryWorktreeRepository } from '../modules/worktree-management/domai
 import { InMemoryAgentActivityProvider } from '../modules/worktree-management/domain/repositories/AgentActivityProvider';
 import { InMemoryAgentTaskScaffolder } from '../modules/worktree-management/application/ports/AgentTaskScaffolder';
 import { InMemoryEditorLauncher } from '../modules/worktree-management/application/ports/EditorLauncher';
+import { InMemoryProjectDocumentRepository } from '../modules/project-docs/domain/repositories/ProjectDocumentRepository';
 import { Worktree } from '../modules/worktree-management/domain/Worktree';
 import { AgentStatus } from '../modules/worktree-management/domain/AgentStatus';
 import { noSessionActivity } from '../modules/worktree-management/domain/AgentActivity';
@@ -33,6 +34,7 @@ function buildFactory(overrides: Partial<AppDependencies>): Factory {
     agentActivityProvider: new InMemoryAgentActivityProvider(),
     agentTaskScaffolder: new InMemoryAgentTaskScaffolder(),
     editorLauncher: new InMemoryEditorLauncher(),
+    documentRepository: new InMemoryProjectDocumentRepository(),
     ...overrides,
   });
 }

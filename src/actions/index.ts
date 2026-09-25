@@ -16,6 +16,8 @@ import {
   removeWorktreeHandler,
   openWorktreeHandler,
   listSelectableChangesHandler,
+  listProjectDocumentsHandler,
+  readProjectDocumentHandler,
 } from './handlers';
 
 const taskTarget = { projectPath: z.string(), changeName: z.string(), id: z.string(), expectedText: z.string() };
@@ -80,5 +82,13 @@ export const server = {
   openWorktree: defineAction({
     input: z.object({ worktreePath: z.string() }),
     handler: (input) => openWorktreeHandler(factory, input),
+  }),
+  listProjectDocuments: defineAction({
+    input: z.object({ projectPath: z.string() }),
+    handler: (input) => listProjectDocumentsHandler(factory, input),
+  }),
+  readProjectDocument: defineAction({
+    input: z.object({ projectPath: z.string(), path: z.string() }),
+    handler: (input) => readProjectDocumentHandler(factory, input),
   }),
 };

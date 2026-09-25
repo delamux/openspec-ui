@@ -26,6 +26,10 @@ import { GitWorktreeRepository } from '../../modules/worktree-management/infrast
 import { ClaudeSessionActivityProvider } from '../../modules/worktree-management/infrastructure/session/ClaudeSessionActivityProvider';
 import { FileSystemAgentTaskScaffolder } from '../../modules/worktree-management/infrastructure/scaffold/FileSystemAgentTaskScaffolder';
 import { VsCodeEditorLauncher } from '../../modules/worktree-management/infrastructure/editor/VsCodeEditorLauncher';
+import { ListProjectDocuments } from '../../modules/project-docs/application/ListProjectDocuments';
+import { ReadProjectDocument } from '../../modules/project-docs/application/ReadProjectDocument';
+import type { ProjectDocumentRepository } from '../../modules/project-docs/domain/repositories/ProjectDocumentRepository';
+import { FileSystemProjectDocumentRepository } from '../../modules/project-docs/infrastructure/fs/FileSystemProjectDocumentRepository';
 
 export interface AppDependencies {
   provider: ProjectsRootProvider;
@@ -35,6 +39,7 @@ export interface AppDependencies {
   agentActivityProvider: AgentActivityProvider;
   agentTaskScaffolder: AgentTaskScaffolder;
   editorLauncher: EditorLauncher;
+  documentRepository: ProjectDocumentRepository;
 }
 
 export class Factory {
@@ -49,6 +54,7 @@ export class Factory {
       agentActivityProvider: new ClaudeSessionActivityProvider(),
       agentTaskScaffolder: new FileSystemAgentTaskScaffolder(),
       editorLauncher: new VsCodeEditorLauncher(),
+      documentRepository: new FileSystemProjectDocumentRepository(),
     });
   }
 
@@ -114,6 +120,14 @@ export class Factory {
 
   openWorktree(): OpenWorktree {
     return new OpenWorktree(this.dependencies.editorLauncher);
+  }
+
+  listProjectDocuments(): ListProjectDocuments {
+    return new ListProjectDocuments(this.dependencies.documentRepository);
+  }
+
+  readProjectDocument(): ReadProjectDocument {
+    return new ReadProjectDocument(this.dependencies.documentRepository);
   }
 }
 
