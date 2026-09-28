@@ -6,6 +6,9 @@
 /* ===== shadcn-style design tokens (ported from the design prototype) ===== */
 :root {
   --radius: 10px;
+  /* Width of rendered documents (proposal, specs, design, tasks, project docs) within
+     the content column: wide, so markdown tables get room. Full width on tablet/phone. */
+  --reading-width: 90%;
   --background: oklch(1 0 0);
   --foreground: oklch(0.21 0.006 285);
   --card: oklch(1 0 0);
@@ -274,4 +277,10 @@ astro-island {
 }
 .prose td {
   color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground));
+}
+
+@media (max-width: 768px) {
+  :root {
+    --reading-width: 100%;
+  }
 }

@@ -15,7 +15,7 @@
   padding: 34px 30px 64px;
 }
 .content > .prose {
-  max-width: 760px;
+  max-width: var(--reading-width);
   margin: 0 auto;
 }
 .content::-webkit-scrollbar {
@@ -27,13 +27,13 @@
   border: 3px solid var(--background);
 }
 .empty {
-  max-width: 760px;
+  max-width: var(--reading-width);
   margin: 0 auto;
   color: var(--muted-foreground);
 }
 
 .specs {
-  max-width: 760px;
+  max-width: var(--reading-width);
   margin: 0 auto;
 }
 .capabilities {
