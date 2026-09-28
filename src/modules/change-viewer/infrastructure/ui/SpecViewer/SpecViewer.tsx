@@ -4,9 +4,9 @@ import { renderMarkdown } from './markdown';
 import { TasksView } from './TasksView';
 import { IconProposal, IconSpecs, IconDesign, IconTasks } from './icons';
 import type { ChangeSpecDto, ChangeViewDto } from '../../../application/dtos';
+import { DEFAULT_SPEC_TAB, type SpecTab } from './specTabs';
 import styles from './SpecViewer.module.css';
 
-type TabId = 'proposal' | 'specs' | 'design' | 'tasks';
 
 const TABS: TabItem[] = [
   { id: 'proposal', label: 'Proposal', icon: <IconProposal size={16} /> },
@@ -20,6 +20,9 @@ interface SpecViewerProps {
   projectPath: string;
   changeName: string;
   onChanged: () => Promise<void>;
+  // When given, the caller owns the active tab (e.g. to keep it in the URL).
+  activeTab?: SpecTab;
+  onTabChange?: (tab: SpecTab) => void;
 }
 
 function Markdown(props: { source: string }) {
@@ -59,12 +62,17 @@ function SpecsView(props: { specs: ChangeSpecDto[] }) {
 }
 
 export function SpecViewer(props: SpecViewerProps) {
-  const [active, setActive] = useState<TabId>('proposal');
+  const [localTab, setLocalTab] = useState<SpecTab>(props.activeTab ?? DEFAULT_SPEC_TAB);
+  const active = props.activeTab ?? localTab;
+  const select = (tab: SpecTab) => {
+    setLocalTab(tab);
+    props.onTabChange?.(tab);
+  };
 
   return (
     <div className={styles.viewer}>
       <div className={styles.tabbarWrap}>
-        <Tabs items={TABS} active={active} onSelect={(id) => setActive(id as TabId)} />
+        <Tabs items={TABS} active={active} onSelect={(id) => select(id as SpecTab)} />
       </div>
       <div className={styles.content} role="tabpanel">
         {active === 'proposal'

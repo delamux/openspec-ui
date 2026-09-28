@@ -17,7 +17,7 @@ function change(overrides: Partial<SelectableChangeDto>): SelectableChangeDto {
 
 describe('selectionFromSearch', () => {
   it('reads an empty selection from an empty query', () => {
-    expect(selectionFromSearch('')).toEqual({ projectPath: '', changeName: '', worktreeName: '' });
+    expect(selectionFromSearch('')).toEqual({ projectPath: '', changeName: '', worktreeName: '', tab: 'proposal' });
   });
 
   it('reads the project and a main change', () => {
@@ -25,6 +25,7 @@ describe('selectionFromSearch', () => {
       projectPath: '/p',
       changeName: 'add-auth',
       worktreeName: '',
+      tab: 'proposal',
     });
   });
 
@@ -33,26 +34,50 @@ describe('selectionFromSearch', () => {
       projectPath: '/p',
       changeName: 'add-auth',
       worktreeName: 'wt-a',
+      tab: 'proposal',
     });
+  });
+
+  it('reads the change viewer tab', () => {
+    expect(selectionFromSearch('?project=/p&change=add-auth&tab=tasks').tab).toBe('tasks');
+    expect(selectionFromSearch('?project=/p&change=add-auth&tab=specs').tab).toBe('specs');
+  });
+
+  it('falls back to the proposal tab for a missing or unknown tab', () => {
+    expect(selectionFromSearch('?project=/p&change=add-auth').tab).toBe('proposal');
+    expect(selectionFromSearch('?project=/p&change=add-auth&tab=nope').tab).toBe('proposal');
   });
 });
 
 describe('searchFromSelection', () => {
   it('writes only the params that are set', () => {
-    expect(searchFromSelection({ projectPath: '/p', changeName: '', worktreeName: '' })).toBe('?project=%2Fp');
-    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: '' })).toBe(
+    expect(searchFromSelection({ projectPath: '/p', changeName: '', worktreeName: '', tab: 'proposal' })).toBe('?project=%2Fp');
+    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: '', tab: 'proposal' })).toBe(
       '?project=%2Fp&change=add-auth',
     );
   });
 
   it('writes the worktree when a worktree change is selected', () => {
-    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: 'wt-a' })).toBe(
+    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: 'wt-a', tab: 'proposal' })).toBe(
       '?project=%2Fp&change=add-auth&worktree=wt-a',
     );
   });
 
+  it('writes the tab after the change, leaving the default proposal tab out', () => {
+    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: '', tab: 'design' })).toBe(
+      '?project=%2Fp&change=add-auth&tab=design',
+    );
+    expect(searchFromSelection({ projectPath: '/p', changeName: 'add-auth', worktreeName: '', tab: 'proposal' })).toBe(
+      '?project=%2Fp&change=add-auth',
+    );
+  });
+
+  it('leaves the tab out when no change is selected', () => {
+    expect(searchFromSelection({ projectPath: '/p', changeName: '', worktreeName: '', tab: 'tasks' })).toBe('?project=%2Fp');
+  });
+
   it('writes an empty search when nothing is selected', () => {
-    expect(searchFromSelection({ projectPath: '', changeName: '', worktreeName: '' })).toBe('');
+    expect(searchFromSelection({ projectPath: '', changeName: '', worktreeName: '', tab: 'proposal' })).toBe('');
   });
 });
 

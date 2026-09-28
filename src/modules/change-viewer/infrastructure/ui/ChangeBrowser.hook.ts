@@ -3,6 +3,7 @@ import { actions } from 'astro:actions';
 import type { DiscoveryResultDto } from '../../../project-discovery/application/dtos';
 import type { SelectableChangesResultDto, ChangeViewResultDto } from '../../application/dtos';
 import { matchSelectableChange, searchFromSelection, selectionFromSearch, type BrowserSelection } from './selectionUrl';
+import { DEFAULT_SPEC_TAB, type SpecTab } from './SpecViewer/specTabs';
 
 export type ThemeMode = 'light' | 'dark';
 export type WorkspaceTab = 'changes' | 'worktrees' | 'project';
@@ -19,6 +20,8 @@ interface State {
   changeKey: string;
   changeName: string;
   changeSource: string;
+  worktreeName: string;
+  specTab: SpecTab;
   view: ChangeViewResultDto | null;
   viewLoading: boolean;
 }
@@ -36,6 +39,7 @@ export interface ChangeBrowserView {
   changeName: string;
   view: ChangeViewResultDto | null;
   viewLoading: boolean;
+  specTab: SpecTab;
   init: () => Promise<void>;
   selectProject: (path: string) => Promise<void>;
   selectChange: (key: string) => Promise<void>;
@@ -43,6 +47,7 @@ export interface ChangeBrowserView {
   toggleTheme: () => void;
   toggleArchived: () => void;
   setTab: (tab: WorkspaceTab) => void;
+  selectSpecTab: (tab: SpecTab) => void;
 }
 
 // The first render must be identical on server and client to avoid a hydration
@@ -76,12 +81,22 @@ export function useChangeBrowser(): ChangeBrowserView {
     changeKey: '',
     changeName: '',
     changeSource: '',
+    worktreeName: '',
+    specTab: DEFAULT_SPEC_TAB,
     view: null,
     viewLoading: false,
   });
 
-  async function loadView(key: string, sourcePath: string, changeName: string): Promise<void> {
-    setState((prev) => ({ ...prev, changeKey: key, changeName, changeSource: sourcePath, viewLoading: true, view: null }));
+  async function loadView(key: string, sourcePath: string, changeName: string, worktreeName: string): Promise<void> {
+    setState((prev) => ({
+      ...prev,
+      changeKey: key,
+      changeName,
+      changeSource: sourcePath,
+      worktreeName,
+      viewLoading: true,
+      view: null,
+    }));
     const response = await actions.loadChange({ projectPath: sourcePath, changeName });
     setState((prev) => ({
       ...prev,
@@ -98,6 +113,7 @@ export function useChangeBrowser(): ChangeBrowserView {
       changeKey: '',
       changeName: '',
       changeSource: '',
+      worktreeName: '',
       view: null,
     }));
     const response = await actions.listSelectableChanges({ projectPath });
@@ -106,7 +122,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     if (changes.kind === 'ok') {
       const match = matchSelectableChange(changes.changes, changeName, worktreeName);
       if (match !== undefined) {
-        await loadView(match.key, match.sourcePath, match.name);
+        await loadView(match.key, match.sourcePath, match.name, match.worktreeName ?? '');
       }
     }
   }
@@ -114,7 +130,13 @@ export function useChangeBrowser(): ChangeBrowserView {
   async function init(): Promise<void> {
     const selection = selectionFromSearch(window.location.search);
     // Apply the system theme now (post-mount), so it never affects the first render.
-    setState((prev) => ({ ...prev, theme: systemTheme(), projectsLoading: true, projectPath: selection.projectPath }));
+    setState((prev) => ({
+      ...prev,
+      theme: systemTheme(),
+      projectsLoading: true,
+      projectPath: selection.projectPath,
+      specTab: selection.tab,
+    }));
     const response = await actions.listProjects();
     const projects: DiscoveryResultDto = response.data ?? { kind: 'discovery-error', message: 'Failed to load projects' };
     setState((prev) => ({ ...prev, projects, projectsLoading: false }));
@@ -125,7 +147,7 @@ export function useChangeBrowser(): ChangeBrowserView {
   }
 
   async function selectProject(path: string): Promise<void> {
-    syncUrl({ projectPath: path, changeName: '', worktreeName: '' });
+    syncUrl({ projectPath: path, changeName: '', worktreeName: '', tab: state.specTab });
     setState((prev) => ({ ...prev, projectPath: path }));
     await loadChanges(path, '', '');
   }
@@ -143,8 +165,9 @@ export function useChangeBrowser(): ChangeBrowserView {
       projectPath: state.projectPath,
       changeName: selected.name,
       worktreeName: selected.worktreeName ?? '',
+      tab: state.specTab,
     });
-    await loadView(selected.key, selected.sourcePath, selected.name);
+    await loadView(selected.key, selected.sourcePath, selected.name, selected.worktreeName ?? '');
   }
 
   // Soft reload after an edit: refresh the view in place WITHOUT blanking it, so the
@@ -172,6 +195,12 @@ export function useChangeBrowser(): ChangeBrowserView {
     setState((prev) => ({ ...prev, tab }));
   }
 
+  // The change viewer tab lives in the URL so a refresh reopens the same tab.
+  function selectSpecTab(tab: SpecTab): void {
+    syncUrl({ projectPath: state.projectPath, changeName: state.changeName, worktreeName: state.worktreeName, tab });
+    setState((prev) => ({ ...prev, specTab: tab }));
+  }
+
   return {
     theme: state.theme,
     tab: state.tab,
@@ -185,6 +214,7 @@ export function useChangeBrowser(): ChangeBrowserView {
     changeName: state.changeName,
     view: state.view,
     viewLoading: state.viewLoading,
+    specTab: state.specTab,
     init,
     selectProject,
     selectChange,
@@ -192,5 +222,6 @@ export function useChangeBrowser(): ChangeBrowserView {
     toggleTheme,
     toggleArchived,
     setTab,
+    selectSpecTab,
   };
 }

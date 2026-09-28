@@ -198,6 +198,8 @@ function renderBody(view: ReturnType<typeof useChangeBrowser>) {
       projectPath={view.projectPath}
       changeName={view.changeName}
       onChanged={view.reload}
+      activeTab={view.specTab}
+      onTabChange={view.selectSpecTab}
     />
   );
 }

@@ -17,6 +17,11 @@ The system SHALL list the OpenSpec changes inside a selected project by scanning
 - **WHEN** a change is found under `openspec/changes/archive/`
 - **THEN** it is included and flagged as archived (distinct from active changes)
 
+#### Scenario: Archived changes are ordered by archive date
+
+- **WHEN** a project has archived changes `2026-06-05-view`, `2026-06-04-first`, `2026-09-03-mobile` and `2026-06-05-align`
+- **THEN** they are listed newest archive date first, changes archived the same day by name, and any archived change without a date prefix last: `2026-09-03-mobile`, `2026-06-05-align`, `2026-06-05-view`, `2026-06-04-first`
+
 #### Scenario: Non-change directories are ignored
 
 - **WHEN** a directory under `openspec/changes/` has no `proposal.md`

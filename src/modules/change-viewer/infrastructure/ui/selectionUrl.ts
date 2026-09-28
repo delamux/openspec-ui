@@ -1,9 +1,11 @@
 import type { SelectableChangeDto } from '../../application/dtos';
+import { DEFAULT_SPEC_TAB, specTabFrom, type SpecTab } from './SpecViewer/specTabs';
 
 export interface BrowserSelection {
   projectPath: string;
   changeName: string;
   worktreeName: string;
+  tab: SpecTab;
 }
 
 export function selectionFromSearch(search: string): BrowserSelection {
@@ -12,6 +14,7 @@ export function selectionFromSearch(search: string): BrowserSelection {
     projectPath: params.get('project') ?? '',
     changeName: params.get('change') ?? '',
     worktreeName: params.get('worktree') ?? '',
+    tab: specTabFrom(params.get('tab') ?? ''),
   };
 }
 
@@ -25,6 +28,9 @@ export function searchFromSelection(selection: BrowserSelection): string {
   }
   if (selection.worktreeName) {
     params.set('worktree', selection.worktreeName);
+  }
+  if (selection.changeName && selection.tab !== DEFAULT_SPEC_TAB) {
+    params.set('tab', selection.tab);
   }
   const query = params.toString();
   return query === '' ? '' : `?${query}`;

@@ -69,6 +69,11 @@ The system SHALL present a loaded change in a three-tab interface — Proposal, 
 - **WHEN** the user selects the Proposal, Design, or Tasks tab
 - **THEN** the corresponding rendered content is shown without reloading the change
 
+#### Scenario: The active tab survives a refresh
+
+- **WHEN** the user opens the Tasks tab of a change and refreshes the page
+- **THEN** the URL carries `tab=tasks` next to `project` and `change`, and the reloaded page opens that change on the Tasks tab; the default Proposal tab is left out of the URL, and an unknown `tab` value falls back to Proposal
+
 #### Scenario: Interactive task list
 
 - **WHEN** the Tasks tab is shown

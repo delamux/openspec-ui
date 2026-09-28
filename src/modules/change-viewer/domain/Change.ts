@@ -2,6 +2,9 @@ import { DomainError } from '../../../shared/domain/DomainError';
 
 export type ChangeStatus = 'active' | 'archived';
 
+// `openspec archive` prefixes the folder with the archive date: 2026-06-04-add-auth.
+const ARCHIVE_DATE = /^(\d{4}-\d{2}-\d{2})-/;
+
 export class Change {
   private constructor(
     readonly name: string,
@@ -17,5 +20,19 @@ export class Change {
 
   isArchived(): boolean {
     return this.status === 'archived';
+  }
+
+  // Newest archive first; changes archived the same day by name; undated ones last.
+  static byArchiveDateNewestFirst(left: Change, right: Change): number {
+    const leftDate = left.archiveDate();
+    const rightDate = right.archiveDate();
+    if (leftDate !== rightDate) {
+      return rightDate.localeCompare(leftDate);
+    }
+    return left.name.localeCompare(right.name);
+  }
+
+  private archiveDate(): string {
+    return ARCHIVE_DATE.exec(this.name)?.[1] ?? '';
   }
 }

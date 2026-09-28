@@ -18,4 +18,18 @@ describe('Change', () => {
   it('rejects an empty name', () => {
     expect(() => Change.create('  ', 'active')).toThrow(DomainError);
   });
+
+  it('orders archived changes newest archive date first, then by name, undated last', () => {
+    const names = ['2026-06-05-view', 'no-date', '2026-06-04-first', '2026-09-03-mobile', '2026-06-05-align'];
+
+    const sorted = names.map((name) => Change.create(name, 'archived')).sort(Change.byArchiveDateNewestFirst);
+
+    expect(sorted.map((change) => change.name)).toEqual([
+      '2026-09-03-mobile',
+      '2026-06-05-align',
+      '2026-06-05-view',
+      '2026-06-04-first',
+      'no-date',
+    ]);
+  });
 });

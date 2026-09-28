@@ -40,6 +40,18 @@ describe('FileSystemChangeRepository', () => {
     ]);
   });
 
+  it('lists archived changes newest first, same-day ones by name', async () => {
+    await makeChange(project, '2026-06-05-view', true);
+    await makeChange(project, '2026-06-04-first', true);
+    await makeChange(project, '2026-06-05-align', true);
+
+    expect((await repository.listChanges(project)).map((c) => c.name)).toEqual([
+      '2026-06-05-align',
+      '2026-06-05-view',
+      '2026-06-04-first',
+    ]);
+  });
+
   it('ignores directories without a proposal.md', async () => {
     await makeChange(project, 'real');
     await makeChange(project, 'not-a-change', false, false);

@@ -23,7 +23,7 @@ export class FileSystemChangeRepository implements ChangeRepository {
     const archived = await this.changeNamesIn(join(changesDir, ARCHIVE), []);
     return [
       ...[...active].sort().map((name) => Change.create(name, 'active')),
-      ...[...archived].sort().reverse().map((name) => Change.create(name, 'archived')),
+      ...archived.map((name) => Change.create(name, 'archived')).sort(Change.byArchiveDateNewestFirst),
     ];
   }
 
