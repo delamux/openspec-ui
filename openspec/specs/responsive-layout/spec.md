@@ -9,17 +9,22 @@ pointer capability, never on width.
 ## Requirements
 ### Requirement: Stack the app bar on phone widths
 
-At viewport widths of 640px or less the system SHALL lay out the app bar so that the Project and Change selects each take a full-width row, one below the other, the Changes/Worktrees workspace tabs sit on the brand row beside the theme toggle, and the "Show archived" checkbox and the Active/Archived badge share one row. The brand subtitle SHALL be hidden at these widths. The page SHALL NOT scroll horizontally.
+At viewport widths of 640px or less the system SHALL lay out the app bar so that the Project and Change selects each take a full-width row, one below the other, the Changes/Worktrees/Project information workspace tabs take their own full-width row under the brand row, which holds the brand and the theme toggle, and the "Show archived" checkbox and the Active/Archived badge share one row. The brand subtitle SHALL be hidden at these widths. Tab labels SHALL NOT wrap onto a second line. The page SHALL NOT scroll horizontally.
 
 #### Scenario: Phone width with a change selected
 
 - **WHEN** the viewport is 390px wide, a project and a change are selected, and the project has archived changes
-- **THEN** the app bar shows four rows: logo, name, workspace tabs and theme toggle; the Project select at full width; the Change select at full width; the "Show archived" checkbox with the status badge at the row's right end — and the page has no horizontal scrollbar
+- **THEN** the app bar shows five rows: logo, name and theme toggle; the three workspace tabs; the Project select at full width; the Change select at full width; the "Show archived" checkbox with the status badge at the row's right end — and the page has no horizontal scrollbar
+
+#### Scenario: All workspace tabs visible on a small phone
+
+- **WHEN** the viewport is 360px wide and a project is selected
+- **THEN** the Changes, Worktrees and Project information tabs are all fully visible on one line in their own row
 
 #### Scenario: Phone width on the Worktrees tab
 
 - **WHEN** the viewport is 390px wide and the Worktrees tab is active
-- **THEN** the app bar shows the brand row and the full-width Project select only, with no empty row where the Change select and checkbox would be
+- **THEN** the app bar shows the brand row, the workspace tabs row and the full-width Project select only, with no empty row where the Change select and checkbox would be
 
 #### Scenario: Tablet width keeps the side-by-side pickers
 
@@ -110,4 +115,23 @@ At viewport widths of 640px or less the system SHALL wrap a worktree card's head
 
 - **WHEN** a worktree's change is opened for review at 390px
 - **THEN** the change content has the same horizontal padding as the Changes tab, not the review container's padding added on top
+
+### Requirement: Rendered documents use a wide reading width
+
+In the change viewer, the Proposal, Specs, Design and Tasks content SHALL be centred in the content column with a maximum width of 1024px. Documents on the Project information tab, which often hold wide tables, SHALL take 90% of the content column. At viewport widths of 768px or less, both SHALL take the full width of the column.
+
+#### Scenario: Desktop change viewer
+
+- **WHEN** the viewport is 1600px wide and a change's proposal is shown
+- **THEN** the rendered proposal is centred and no wider than 1024px
+
+#### Scenario: Desktop project document
+
+- **WHEN** the viewport is 1600px wide and a document is open on the Project information tab
+- **THEN** the document takes 90% of the content column
+
+#### Scenario: Tablet and phone widths
+
+- **WHEN** the viewport is 768px wide or less
+- **THEN** change viewer content and project documents both take the full width of the content column
 

@@ -41,4 +41,4 @@
 - [x] 7.1 `pnpm test` and `pnpm astro check` pass
 - [x] 7.2 Open the Project information tab against a copy of this repository (plus a sample `.claude` skill) in a scripted Chromium at 1280, 768, 390 and 360px: config renders as YAML, skill front matter as a YAML block, specs and READMEs render, no horizontal page scroll
 - [x] 7.3 Open this change's Specs tab in a scripted Chromium and switch between its two capabilities
-- [ ] 7.4 Decide with the Tech Lead whether `config.yaml` should become editable (follow-up change)
+- [x] 7.4 Decide with the Tech Lead whether `config.yaml` should become editable — decided: it stays read-only here; editing is left to a follow-up change
