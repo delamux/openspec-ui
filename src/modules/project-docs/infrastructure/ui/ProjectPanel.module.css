@@ -88,7 +88,7 @@
   padding: 34px 30px 64px;
 }
 .content > article {
-  max-width: var(--reading-width);
+  max-width: var(--project-doc-width);
   margin: 0 auto;
 }
 .docPath {

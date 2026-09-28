@@ -6,9 +6,11 @@
 /* ===== shadcn-style design tokens (ported from the design prototype) ===== */
 :root {
   --radius: 10px;
-  /* Width of rendered documents (proposal, specs, design, tasks, project docs) within
-     the content column: wide, so markdown tables get room. Full width on tablet/phone. */
-  --reading-width: 90%;
+  /* Width of rendered documents within the content column. The change viewer (proposal,
+     specs, design, tasks) caps at a readable width; Project information documents, often
+     wide tables, take 90%. Both go full width on tablet/phone. */
+  --reading-width: 1024px;
+  --project-doc-width: 90%;
   --background: oklch(1 0 0);
   --foreground: oklch(0.21 0.006 285);
   --card: oklch(1 0 0);
@@ -282,5 +284,6 @@ astro-island {
 @media (max-width: 768px) {
   :root {
     --reading-width: 100%;
+    --project-doc-width: 100%;
   }
 }

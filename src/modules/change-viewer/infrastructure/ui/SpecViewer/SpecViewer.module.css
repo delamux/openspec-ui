@@ -14,7 +14,7 @@
   overflow-y: auto;
   padding: 34px 30px 64px;
 }
-.content > .prose {
+.content > :global(.prose) {
   max-width: var(--reading-width);
   margin: 0 auto;
 }
